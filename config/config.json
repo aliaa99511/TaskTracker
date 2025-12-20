@@ -1,0 +1,18 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "task-tracker-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/taskTracker/TaskTrackerWebPart.js",
+          "manifest": "./src/webparts/taskTracker/TaskTrackerWebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "TaskTrackerWebPartStrings": "lib/webparts/taskTracker/loc/{locale}.js"
+  }
+}

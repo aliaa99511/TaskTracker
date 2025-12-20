@@ -1,0 +1,15 @@
+#workbenchPageContent {
+  max-width: 100%;
+  margin: 0;
+}
+.ControlZone {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+.CanvasSection {
+  padding: 0 !important;
+}
+.CanvasZone {
+  max-width: 100% !important;
+  padding: 0 !important;
+}

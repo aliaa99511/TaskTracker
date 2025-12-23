@@ -70,7 +70,6 @@ const userApi = createApi({
                 const currentUserId = currentUserRes.data?.d?.Id;
                 if (!currentUserId) return { data: null };
 
-
                 const employeeRes: any = await fetchWithBQ({
                     method: "GET",
                     url: "/_api/web/lists/getbytitle('Employee')/items",
@@ -82,7 +81,6 @@ const userApi = createApi({
 
                 if (employeeRes.error) return { error: employeeRes.error };
                 const employeeId = employeeRes.data?.d?.results?.[0]?.ID ?? null;
-
                 return { data: employeeId };
             },
         }),

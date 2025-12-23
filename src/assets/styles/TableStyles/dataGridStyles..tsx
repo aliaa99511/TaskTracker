@@ -1,22 +1,33 @@
+import { alpha } from "@mui/material";
+
 export const dataGridStyles = {
-    '& .MuiDataGrid-cell': {
-        display: 'flex',
-        alignItems: 'center',
-        py: "12px"
+    /* cells */
+    "& .MuiDataGrid-cell": {
+        display: "flex",
+        alignItems: "center",
+        py: "12px",
     },
-    '& .MuiDataGrid-cell .MuiTypography-root': {
-        color: 'text.primary'
+
+    "& .MuiDataGrid-cell .MuiTypography-root": {
+        color: "text.primary",
     },
-    '& .weekend-row, & .holiday-row, & .vacation-row': {
-        backgroundColor: 'action.hover',
-        '&:hover': {
-            backgroundColor: 'action.selected',
-        },
+
+    /* header row */
+    "& .MuiDataGrid-columnHeaders": {
+        backgroundColor: (theme: any) =>
+            alpha(theme.palette.primary.main, 0.01),
+        borderBottom: "none",
     },
-    '& .empty-day': {
-        minHeight: '60px',
-        '& .MuiDataGrid-cell': {
-            color: 'text.disabled',
-        }
+
+    /* each header cell */
+    "& .MuiDataGrid-columnHeader": {
+        backgroundColor: (theme: any) =>
+            alpha(theme.palette.primary.main, 0.1),
+    },
+
+    /* header text */
+    "& .MuiDataGrid-columnHeaderTitle": {
+        color: "primary.main",
+        fontWeight: 600,
     },
 };

@@ -9,7 +9,7 @@ const SideMenu: React.FC<{ navItems: any }> = ({ navItems }) => {
         <Paper
             elevation={0}
             sx={{
-                p: 0,
+                p: 1,
                 width: "100%",
                 backgroundColor: theme.palette.background.paper,
                 height: "100%",

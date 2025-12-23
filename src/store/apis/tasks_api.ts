@@ -45,13 +45,12 @@ const tasksApi = createApi({
     },
     tagTypes: ["Tasks", "Attachment"],
     endpoints: (builder) => ({
-        fetchTasksRequestsByEmployeeId: builder.query<any, number>({
+        fetchTasksRequests: builder.query<any, number>({
             providesTags: ["Tasks"],
             query: (employee_id) => ({
                 method: "GET",
                 url: "/_api/web/lists/getbytitle('Tasks')/items",
                 params: {
-                    $filter: `Employee/Id eq ${employee_id}`,
                     $select: commonSelectParams,
                     $expand: commonExpandParams,
                     $orderBy: "Created desc",
@@ -60,7 +59,24 @@ const tasksApi = createApi({
             }),
             transformResponse: (response: any) => response.d.results
         }),
-
+        fetchTasksRequestsByEmployeeId: builder.query<any, number>({
+            providesTags: ["Tasks"],
+            query: (employee_id) => ({
+                // const status = encodeURIComponent('جاري التنفيذ');
+                method: "GET",
+                url: "/_api/web/lists/getbytitle('Tasks')/items",
+                params: {
+                    // $filter: `Employee/Id eq ${employee_id} and Status eq '${status}'`,
+                    // $filter: `EmployeeId eq ${employee_id}`,
+                    $filter: `EmployeeId eq ${employee_id} and substringof('جاري التنفيذ', Status)`,
+                    $select: commonSelectParams,
+                    $expand: commonExpandParams,
+                    $orderBy: "Created desc",
+                    $top: 10000,
+                },
+            }),
+            transformResponse: (response: any) => response.d.results
+        }),
         fetchTasksTodayRequestsByManagerId: builder.query<any[], {
             managerId: number;
             dateToday: string;
@@ -202,6 +218,7 @@ const tasksApi = createApi({
 
 export { tasksApi };
 export const {
+    useFetchTasksRequestsQuery,
     useFetchTasksRequestsByEmployeeIdQuery,
     useFetchTasksTodayRequestsByManagerIdQuery,
     useCreateTaskMutation,

@@ -4,7 +4,7 @@ import { InteractionStatus } from "@azure/msal-browser";
 import defaultTheme from '../../src/theme/defaultTheme';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import TaskTracker from '../../src/webparts/taskTracker/TaskTracker';
+import TasksTracker from '../../src/webparts/tasksTracker/components/TasksTracker';
 
 const loginRequest = {
     scopes: ["https://uraniumcorp.sharepoint.com/.default"]
@@ -59,13 +59,12 @@ const App: React.FC<any> = ({ }) => {
             )}
             {!isLoading && token !== "" &&
                 <>
-                    <TaskTracker
+                    <TasksTracker
                         siteURL="https://uraniumcorp.sharepoint.com/sites/TasksTrackers"
                         token={token}
                         user={{}}
                         siteTheme={defaultTheme}
                     />
-                    <ToastContainer />
                 </>
             }
         </>

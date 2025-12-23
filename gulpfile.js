@@ -19,25 +19,15 @@ build.rig.getTasks = function () {
 // ✅ إشعار عند انتهاء الـ rebuild (مع تجاهل أول مرة)
 let isFirstBuild = true;
 
-// function showRebuildNotification() {
-//   // إشعار النظام
-//   return gulp.src('package.json')
-//     .pipe(notify({
-//       title: 'Rebuild Complete',
-//       message: 'changes have been saved successfully!',
-//       sound: true,
-//       onLast: true
-//     }));
-// }
-
-const notifier = require('node-notifier');
-
 function showRebuildNotification() {
-  notifier.notify({
-    title: 'SPFx Build',
-    message: 'changes have been saved successfully 🚀',
-    sound: true
-  });
+  // إشعار النظام
+  return gulp.src('package.json')
+    .pipe(notify({
+      title: 'Rebuild Complete',
+      message: 'changes have been saved successfully!',
+      sound: true,
+      onLast: true
+    }));
 }
 
 // ✅ تقليل زمن البناء: إلغاء sourcemaps
@@ -82,6 +72,9 @@ build.configureWebpack.mergeConfig({
 
 // ✅ بدء عملية الـ build
 build.initialize(gulp);
+
+
+
 
 
 

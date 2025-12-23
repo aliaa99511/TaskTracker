@@ -8,6 +8,7 @@ import { alpha, useTheme } from '@mui/material';
 
 type MenuItem = {
     label: string;
+    icon: React.ReactNode;
     to: string;
     children: {
         label: string;
@@ -40,11 +41,10 @@ export default function MenuLink({ item, isSubLink }: MenuLinkProps) {
             <ListItemButton
                 sx={{
                     color: theme.palette.text.primary,
-
-                    borderRight: `3px solid`,
+                    // borderRight: `3px solid`,
                     paddingRight: isSubLink ? 4 : 2,
                     textAlign: "right",
-
+                    borderRadius: 2,
                     borderColor: isActive ? theme.palette.primary.main : "transparent",
                     margin: "2px 0",
                     backgroundColor: isActive ? alpha(theme.palette.primary.main, .1) : "",
@@ -58,7 +58,8 @@ export default function MenuLink({ item, isSubLink }: MenuLinkProps) {
                     }
                 }}
             >
-                <ListItemText primary={item.label} />
+                {item.icon}
+                <ListItemText primary={item.label} sx={{ color: 'primary.main' }} />
             </ListItemButton>
         </Link>
     );

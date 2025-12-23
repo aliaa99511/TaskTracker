@@ -77,6 +77,13 @@ export const getPriorityColor = (priority: string): { backgroundColor: string, c
     }
 };
 
+export const formatDate = (value?: string) => {
+    if (!value) return '-';
+    const d = new Date(value);
+    if (isNaN(d.getTime())) return '-';
+    return d.toLocaleDateString('ar-EG');
+};
+
 function hashStringToInt(str: string): number {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {

@@ -2,7 +2,6 @@ import * as React from 'react';
 import { useMsal } from '@azure/msal-react';
 import { InteractionStatus } from "@azure/msal-browser";
 import defaultTheme from '../../src/theme/defaultTheme';
-import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import TasksTracker from '../../src/webparts/tasksTracker/components/TasksTracker';
 

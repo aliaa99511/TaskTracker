@@ -1,8 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import type { RootState } from "..";
 import { getFormDigestValue } from "../../utils/db";
-// Remove: import * as moment from "moment";
-import dayjs from 'dayjs';
 
 const commonSelectParams = [
     "*",
@@ -45,21 +43,62 @@ const tasksApi = createApi({
     },
     tagTypes: ["Tasks", "Attachment"],
     endpoints: (builder) => ({
-        fetchTasksRequests: builder.query<any, number>({
+        fetchTasksRequests: builder.query<any[], void>({
             providesTags: ["Tasks"],
-            query: (employee_id) => ({
+            query: () => ({
                 method: "GET",
                 url: "/_api/web/lists/getbytitle('Tasks')/items",
                 params: {
                     $select: commonSelectParams,
                     $expand: commonExpandParams,
-                    $orderBy: "Created desc",
+                    $orderby: "Created desc",
                     $top: 10000,
                 },
             }),
-            transformResponse: (response: any) => response.d.results
+            transformResponse: (response: any) => response.d.results,
         }),
         fetchTasksRequestsByEmployeeId: builder.query<any, number>({
+            providesTags: ["Tasks"],
+            query: (employee_id) => {
+                return {
+                    method: "GET",
+                    url: "/_api/web/lists/getbytitle('Tasks')/items",
+                    params: {
+                        $filter: `EmployeeId eq ${employee_id}`,
+                        $select: commonSelectParams,
+                        $expand: commonExpandParams,
+                        $orderby: "Created desc",
+                        $top: 10000,
+                    },
+                };
+            },
+            transformResponse: (response: any) => response.d.results
+        }),
+        fetchTasksRequestsByEmployeeIdWithCurrentMonth: builder.query<any, number>({
+            providesTags: ["Tasks"],
+            query: (employee_id) => {
+                const today = new Date();
+                const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+                const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+                const firstDayStr = firstDay.toISOString();
+                const lastDayStr = lastDay.toISOString();
+
+                return {
+                    method: "GET",
+                    url: "/_api/web/lists/getbytitle('Tasks')/items",
+                    params: {
+                        $filter: `EmployeeId eq ${employee_id} and Created ge datetime'${firstDayStr}' and Created le datetime'${lastDayStr}'`,
+                        $select: commonSelectParams,
+                        $expand: commonExpandParams,
+                        $orderby: "Created desc",
+                        $top: 10000,
+                    },
+                };
+            },
+            transformResponse: (response: any) => response.d.results
+        }),
+        fetchPendingTasksRequestsByEmployeeId: builder.query<any, number>({
             providesTags: ["Tasks"],
             query: (employee_id) => ({
                 // const status = encodeURIComponent('جاري التنفيذ');
@@ -68,7 +107,8 @@ const tasksApi = createApi({
                 params: {
                     // $filter: `Employee/Id eq ${employee_id} and Status eq '${status}'`,
                     // $filter: `EmployeeId eq ${employee_id}`,
-                    $filter: `EmployeeId eq ${employee_id} and substringof('جاري التنفيذ', Status)`,
+                    $filter: `EmployeeId eq ${employee_id} and Status ne 'تم الانتهاء' and Status ne 'لم يتم الحل'`,
+                    // $filter: `EmployeeId eq ${employee_id} and substringof('جاري التنفيذ', Status)`,
                     $select: commonSelectParams,
                     $expand: commonExpandParams,
                     $orderBy: "Created desc",
@@ -77,21 +117,59 @@ const tasksApi = createApi({
             }),
             transformResponse: (response: any) => response.d.results
         }),
-        fetchTasksTodayRequestsByManagerId: builder.query<any[], {
-            managerId: number;
-            dateToday: string;
-        }>({
-            query: ({ managerId, dateToday }) => {
-                // Format the date properly for SharePoint datetime filter using dayjs
-                const formattedDate = dayjs(dateToday).format('YYYY-MM-DD');
+        fetchRecentTasksRequests: builder.query<any[], void>({
+            providesTags: ["Tasks"],
+            query: () => ({
+                method: "GET",
+                url: "/_api/web/lists/getbytitle('Tasks')/items",
+                params: {
+                    $select: commonSelectParams,
+                    $expand: commonExpandParams,
+                    $orderby: "Created desc",
+                    $top: 10000,
+                },
+            }),
+            transformResponse: (response: any) => {
+                const results = response.d.results;
+
+                // Group tasks by employee and get the most recent task for each employee
+                const employeeTasksMap = new Map<number, any>();
+
+                results.forEach((task: any) => {
+                    if (task.EmployeeId) {
+                        const existingTask = employeeTasksMap.get(task.EmployeeId);
+
+                        // If no task exists for this employee yet, or if current task is newer
+                        if (!existingTask || new Date(task.Created) > new Date(existingTask.Created)) {
+                            employeeTasksMap.set(task.EmployeeId, task);
+                        }
+                    }
+                });
+
+                // Return array of most recent tasks, one per employee
+                return Array.from(employeeTasksMap.values())
+                    .sort((a, b) => new Date(b.Created).getTime() - new Date(a.Created).getTime());
+            },
+        }),
+
+        fetchCurrentMonthTasksRequests: builder.query<any[], void>({
+            providesTags: ["Tasks"],
+            query: () => {
+                const today = new Date();
+                const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+                const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+                const firstDayStr = firstDay.toISOString();
+                const lastDayStr = lastDay.toISOString();
 
                 return {
                     method: "GET",
                     url: "/_api/web/lists/getbytitle('Tasks')/items",
                     params: {
-                        $filter: `ManagerIDId eq ${managerId} and Date eq '${formattedDate}'`,
+                        $filter: `Created ge datetime'${firstDayStr}' and Created le datetime'${lastDayStr}'`,
                         $select: commonSelectParams,
                         $expand: commonExpandParams,
+                        $orderby: "Created desc",
                         $top: 10000,
                     },
                 };
@@ -128,7 +206,6 @@ const tasksApi = createApi({
                 };
             },
         }),
-
         updateTask: builder.mutation<any, {
             id: number;
             data: {
@@ -162,7 +239,6 @@ const tasksApi = createApi({
                 };
             },
         }),
-
         deleteTask: builder.mutation<any, number>({
             invalidatesTags: ["Tasks"],
             query: (id) => ({
@@ -173,6 +249,44 @@ const tasksApi = createApi({
                     "X-HTTP-Method": "DELETE"
                 },
             }),
+        }),
+
+        fetchTaskNotes: builder.query({
+            query: (id) => ({
+                method: "GET",
+                url: `/_api/web/lists/getbytitle('Tasks')/items(${id})/versions`,
+                params: {
+                    $select: "Notes,Created,Editor/Title,Editor/EMail",
+                    $expand: "Editor"
+                },
+            }),
+            transformResponse: (response: any) => response.d?.results || [],
+            providesTags: (result, error, id) => [
+                { type: 'Tasks' as const, id },
+                { type: 'Tasks' as const, id: `${id}-notes` }
+            ]
+        }),
+
+        addTaskComment: builder.mutation({
+            query: ({ id, comment }) => {
+                return {
+                    url: `/_api/web/lists/getbytitle('Tasks')/items(${id})`,
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json; odata=verbose",
+                        "IF-MATCH": "*",
+                        "X-HTTP-Method": "MERGE"
+                    },
+                    body: {
+                        __metadata: { type: "SP.Data.TasksListItem" },
+                        Notes: comment
+                    },
+                };
+            },
+            invalidatesTags: (result, error, { id }) => [
+                { type: 'Tasks' as const, id },
+                { type: 'Tasks' as const, id: `${id}-notes` }
+            ],
         }),
 
         uploadTaskAttachment: builder.mutation<void, { taskId: number; file: File }>({
@@ -201,7 +315,6 @@ const tasksApi = createApi({
             }),
             transformResponse: (response: any) => response.d?.results || [],
         }),
-
         deleteAttachment: builder.mutation<void, { taskId: number; fileName: string }>({
             invalidatesTags: (result, error, { taskId, fileName }) => [
                 { type: 'Tasks' as const, id: taskId },
@@ -220,10 +333,15 @@ export { tasksApi };
 export const {
     useFetchTasksRequestsQuery,
     useFetchTasksRequestsByEmployeeIdQuery,
-    useFetchTasksTodayRequestsByManagerIdQuery,
+    useFetchTasksRequestsByEmployeeIdWithCurrentMonthQuery,
+    useFetchPendingTasksRequestsByEmployeeIdQuery,
+    useFetchRecentTasksRequestsQuery,
+    useFetchCurrentMonthTasksRequestsQuery,
     useCreateTaskMutation,
     useUpdateTaskMutation,
     useDeleteTaskMutation,
+    useFetchTaskNotesQuery,
+    useAddTaskCommentMutation,
     useUploadTaskAttachmentMutation,
     useFetchTaskAttachmentsQuery,
     useDeleteAttachmentMutation,

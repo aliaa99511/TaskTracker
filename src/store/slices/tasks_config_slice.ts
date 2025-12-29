@@ -2,6 +2,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 type EmployeeInfo = {
     gender: string | null;
+    type: string | null;
     employeeId: number | null;
     directManagerId: number | null,
     departmentId: number | null,
@@ -18,6 +19,7 @@ const initialState: TasksConfigState = {
     currentLeave: {},
     employeeInfo: {
         gender: null,
+        type: null,
         employeeId: null,
         directManagerId: null,
         departmentId: null,

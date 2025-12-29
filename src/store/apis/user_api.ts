@@ -114,7 +114,8 @@ export { userApi };
 export const {
     useFetchUsersQuery,
     useFetchCurrentUserQuery,
+    useFetchEmployeeProfileQuery,
     useFetchEmployeeIdQuery,
-    useFetchUserGroupsQuery,
     useFetchEmployeeByUserIdQuery,
+    useFetchUserGroupsQuery,
 } = userApi;

@@ -38,6 +38,7 @@ export default class TasksTrackerWebPart extends BaseClientSideWebPart<ITasksTra
   }
 
   public render(): void {
+    console.log('pageContext', this.context.pageContext);
     const element: React.ReactElement<ITasksTrackerProps> = React.createElement(
       TasksTracker,
       {

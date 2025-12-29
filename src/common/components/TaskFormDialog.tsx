@@ -77,7 +77,6 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
             Description: '',
             StartDate: null,
             DueDate: null,
-            Status: 'لم يبدأ بعد',
             Priority: 'متوسطة',
             TaskTypeId: '',
             DepartmentId: '',
@@ -317,20 +316,22 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
                                 </Grid>
 
                                 {/* Status Field - Select */}
-                                <Grid item xs={12} sm={6}>
-                                    <CommonInput
-                                        type="select"
-                                        name="Status"
-                                        value={status || ''}
-                                        onChange={(value) => setValue('Status', value)}
-                                        label="الحالة"
-                                        options={statusOptionsArray}
-                                        error={!!errors.Status}
-                                        helperText={errors.Status?.message}
-                                        required
-                                        disabled={isSubmitting}
-                                    />
-                                </Grid>
+                                {isEdit && (
+                                    <Grid item xs={12} sm={6}>
+                                        <CommonInput
+                                            type="select"
+                                            name="Status"
+                                            value={status || ''}
+                                            onChange={(value) => setValue('Status', value)}
+                                            label="الحالة"
+                                            options={statusOptionsArray}
+                                            error={!!errors.Status}
+                                            helperText={errors.Status?.message}
+                                            required
+                                            disabled={isSubmitting}
+                                        />
+                                    </Grid>
+                                )}
 
                                 {/* Priority Field - Select */}
                                 <Grid item xs={12} sm={6}>

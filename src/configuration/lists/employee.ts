@@ -1,5 +1,6 @@
 import { sp } from "@pnp/sp/presets/all";
 import { CreateFields } from "../../utils/db";
+import { GetEmployeeTypeOptions } from "../options_field/employee_type";
 
 type EmployeeReferenceIds = {
     DepartmentId: string;
@@ -13,6 +14,7 @@ export const createEmployeeList = async (listsId: EmployeeReferenceIds) => {
     const fields = [
         { title: "Employee", type: "User" },
         { title: "EmployeeID", type: "Text" },
+        { title: "EmployeeType", type: "Choice", options: GetEmployeeTypeOptions() },
         { title: "EmployeeName", type: "Text" },
         { title: "HiringDate", type: "Date" },
         { title: "BusinessMobileNumber", type: "Text" },

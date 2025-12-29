@@ -1,18 +1,12 @@
 import * as React from 'react';
-import {
-    Grid,
-    Card,
-    Box,
-    Typography
-} from '@mui/material';
-
+import { Grid, Card, Box, Typography } from '@mui/material';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import TrackChangesIcon from '@mui/icons-material/TrackChanges';
-
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
-import { useFetchEmployeeIdQuery, useFetchTasksRequestsQuery } from '../../../../../../../store';
+import { useFetchEmployeeIdQuery, useFetchTasksRequestsByEmployeeIdQuery } from '../../../../../../store';
+import { safePercent } from '../../../../../../utils/helpers';
 
 const COLORS = {
     completed: '#7DCEA0',
@@ -50,14 +44,12 @@ const STATS = [
         color: COLORS.rejected,
         bg: '#FFEBE9',
     },
-
 ];
 
 const TaskStatistics = () => {
-
     const { data: employeeId } = useFetchEmployeeIdQuery();
     const { data: tasks = [], } =
-        useFetchTasksRequestsQuery(employeeId as number, {
+        useFetchTasksRequestsByEmployeeIdQuery(employeeId as number, {
             skip: !employeeId,
         });
 
@@ -65,12 +57,12 @@ const TaskStatistics = () => {
     const pending = tasks.filter((t: any) => t.Status === 'جاري التنفيذ').length;
     const rejected = tasks.filter((t: any) => t.Status === 'لم يتم الحل').length;
 
-    const total = tasks.length || 1;
+    const total = tasks.length || 0;
 
     const chartData = [
         { name: 'مكتمل', value: completed, color: COLORS.completed },
         { name: 'قيد التنفيذ', value: pending, color: COLORS.pending },
-        { name: 'متأخرة', value: rejected, color: COLORS.rejected },
+        { name: 'لم يتم الحل', value: rejected, color: COLORS.rejected },
     ];
 
     return (
@@ -112,77 +104,61 @@ const TaskStatistics = () => {
 
             {/* Donut Chart */}
             <Grid item xs={12} md={3.2}>
-                <Card
-                    sx={{
-                        p: 1.5,
-                        borderRadius: 3,
-                        height: '100%',
-                    }}
-                >
-                    <Grid container alignItems="center" height="100%">
-                        {/* PieChart */}
-                        <Grid
-                            item
-                            xs={6}
+                <Card sx={{ p: 1.5, borderRadius: 3, height: "100%" }}>
+
+                    {total === 0 ? (
+                        <Box
+                            height="100%"
                             display="flex"
-                            justifyContent="center"
                             alignItems="center"
+                            justifyContent="center"
+                            flexDirection="column"
                         >
-                            <Box width="100%" height={110}>
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <PieChart>
-                                        <Pie
-                                            data={chartData}
-                                            dataKey="value"
-                                            cx="50%"
-                                            cy="50%"
-                                            innerRadius={38}
-                                            outerRadius={53}
-                                            stroke="none"
-                                        >
-                                            {chartData.map((entry, index) => (
-                                                <Cell key={index} fill={entry.color} />
-                                            ))}
-                                        </Pie>
-                                    </PieChart>
-                                </ResponsiveContainer>
-                            </Box>
-                        </Grid>
+                            <LegendItem color={COLORS.completed} label="مكتمل" value={0} total={0} />
+                            <LegendItem color={COLORS.pending} label="قيد التنفيذ" value={0} total={0} />
+                            <LegendItem color={COLORS.rejected} label="لم يتم الحل" value={0} total={0} />
+                        </Box>
+                    ) : (
+                        <Grid container alignItems="center" height="100%">
+                            <Grid item xs={6} display="flex" justifyContent="center" alignItems="center">
+                                <Box width="100%" height={110}>
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <PieChart>
+                                            <Pie
+                                                data={chartData}
+                                                dataKey="value"
+                                                cx="50%"
+                                                cy="50%"
+                                                innerRadius={38}
+                                                outerRadius={53}
+                                                stroke="none"
+                                            >
+                                                {chartData.map((entry, index) => (
+                                                    <Cell key={index} fill={entry.color} />
+                                                ))}
+                                            </Pie>
+                                        </PieChart>
+                                    </ResponsiveContainer>
+                                </Box>
+                            </Grid>
 
-                        {/* Legend */}
-                        <Grid item xs={6}>
-                            <LegendItem
-                                color={COLORS.completed}
-                                label="مكتمل"
-                                value={completed}
-                                total={total}
-                            />
-                            <LegendItem
-                                color={COLORS.pending}
-                                label="قيد التنفيذ"
-                                value={pending}
-                                total={total}
-                            />
-                            <LegendItem
-                                color={COLORS.rejected}
-                                label="متأخرة"
-                                value={rejected}
-                                total={total}
-                            />
+                            <Grid item xs={6}>
+                                <LegendItem color={COLORS.completed} label="مكتمل" value={completed} total={total} />
+                                <LegendItem color={COLORS.pending} label="قيد التنفيذ" value={pending} total={total} />
+                                <LegendItem color={COLORS.rejected} label="لم يتم الحل" value={rejected} total={total} />
+                            </Grid>
                         </Grid>
-                    </Grid>
-
+                    )}
                 </Card>
             </Grid>
-
         </Grid>
     );
 };
 
 const LegendItem = ({ color, label, value, total }: any) => (
     <Grid container alignItems="center" fontSize={13} mb={0.5}>
-        {/* Label */}
         <Grid item xs={1}></Grid>
+
         <Grid item xs={8.5}>
             <Box display="flex" alignItems="center" gap={1}>
                 <Box
@@ -197,44 +173,12 @@ const LegendItem = ({ color, label, value, total }: any) => (
             </Box>
         </Grid>
 
-        {/* Percentage */}
         <Grid item xs={2.5}>
             <Typography fontSize={13} textAlign="right">
-                {Math.round((value / total) * 100)}%
+                {safePercent(value, total)}%
             </Typography>
         </Grid>
     </Grid>
 );
 
 export default TaskStatistics;
-
-
-
-
-
-
-// import * as React from 'react';
-// import { Grid, Card, Typography } from '@mui/material';
-
-// const STATUSES = [
-//     "جاري التنفيذ",
-//     "تم الانتهاء",
-//     "لم يتم الحل",
-// ];
-
-// const TaskStatistics = ({ tasks }: any) => (
-//     <Grid container spacing={2} mb={3}>
-//         {STATUSES.map(status => (
-//             <Grid item xs={12} md={3} key={status}>
-//                 <Card sx={{ p: 2, borderRadius: 3 }}>
-//                     <Typography fontSize={14}>{status}</Typography>
-//                     <Typography variant="h4">
-//                         {tasks.filter((t: any) => t.Status === status).length}
-//                     </Typography>
-//                 </Card>
-//             </Grid>
-//         ))}
-//     </Grid>
-// );
-
-// export default TaskStatistics;

@@ -1,6 +1,5 @@
 export const GetStatusOptions = () => {
     return [
-        "تم البدأ",
         "جاري التنفيذ",
         "تم الانتهاء",
         "جاري المراجعة",

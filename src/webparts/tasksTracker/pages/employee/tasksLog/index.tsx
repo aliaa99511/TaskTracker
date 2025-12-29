@@ -4,7 +4,7 @@ import {
     useDeleteAttachmentMutation,
     useDeleteTaskMutation,
     useFetchEmployeeIdQuery,
-    useFetchPendingTasksRequestsByEmployeeIdQuery,
+    useFetchTasksRequestsByEmployeeIdWithCurrentMonthQuery,
     useUpdateTaskMutation,
     useUploadTaskAttachmentMutation
 } from '../../../../../store';
@@ -19,16 +19,33 @@ import TaskStatistics from '../components/statistics/TaskStatistics';
 import TaskCardsView from '../../components/cardsView/TaskCardsView';
 import ToggleButtonView from '../../../../../common/components/ToggleButtonView';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import TasksFilterDialog from '../../components/taskFilter/TasksFilterDialog';
+import TuneIcon from '@mui/icons-material/Tune';
+import { useTasksFilter } from '../../components/taskFilter/hooks/useTasksFilter';
 
-const EmployeePendingTasksLog: React.FC = () => {
+const EmployeeTasksLog: React.FC = () => {
     const { data: employeeId } = useFetchEmployeeIdQuery();
-    const { data: tasks = [], refetch, isLoading } =
-        useFetchPendingTasksRequestsByEmployeeIdQuery(employeeId as number, {
-            skip: !employeeId,
-        });
-    console.log('tasks', tasks)
+    const { data: tasks = [], refetch, isLoading } = useFetchTasksRequestsByEmployeeIdWithCurrentMonthQuery(employeeId as number, {
+        skip: !employeeId,
+    });
 
+    const [openFilter, setOpenFilter] = React.useState(false);
     const [view, setView] = React.useState<'table' | 'cards'>('table');
+
+    // Use the tasks filter hook
+    const {
+        filteredTasks,
+        filterState,
+        handleFilterChange,
+        resetFilters,
+        clearFilters,
+        isFilterActive
+    } = useTasksFilter({
+        initialTasks: tasks,
+        onFilterChange: React.useCallback((filtered) => {
+            // Optional: Additional logic when filters change
+        }, []) // Empty dependency array to prevent recreating function
+    });
 
     const [createTask] = useCreateTaskMutation();
     const [updateTask] = useUpdateTaskMutation();
@@ -51,22 +68,61 @@ const EmployeePendingTasksLog: React.FC = () => {
         taskOperations.handleDeleteClick
     );
 
+    const handleApplyFilters = React.useCallback((filters: any) => {
+        // Update filter state from dialog
+        Object.keys(filters).forEach(key => {
+            handleFilterChange(key as keyof typeof filterState, filters[key]);
+        });
+        setOpenFilter(false);
+    }, [handleFilterChange]);
+
+    const handleClearFilters = React.useCallback(() => {
+        clearFilters();
+        setOpenFilter(false);
+    }, [clearFilters]);
+
+    const TaskCardsViewMemo = React.memo(TaskCardsView);
+    const TaskStatisticsMemo = React.memo(TaskStatistics);
+
     return (
         <Box sx={{ p: 3 }}>
             {/* Statistics */}
-            <TaskStatistics />
+            <TaskStatisticsMemo />
 
             <Box sx={{ background: "#fff", p: 3, borderRadius: 3 }}>
                 {/* Header */}
                 <Box display="flex" justifyContent="space-between" mb={2}>
                     <Box>
-                        <Typography variant="h5">المهام المعلقة</Typography>
+                        <Typography variant="h5">سجل المهام</Typography>
                         <Typography fontSize={14} color="text.secondary">
                             {new Date().toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' })}
                         </Typography>
+                        {isFilterActive && (
+                            <Typography fontSize={12} color="primary">
+                                ({filteredTasks.length} من {tasks.length} مهمة بعد التصفية)
+                            </Typography>
+                        )}
                     </Box>
 
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <Button
+                            startIcon={<TuneIcon sx={{ ml: 1.5, mr: -1 }} />}
+                            onClick={() => setOpenFilter(true)}
+                            sx={{
+                                border: "1px solid #c5c5c5",
+                                color: isFilterActive ? 'primary.main' : 'inherit'
+                            }}
+                        >
+                            تصفية {isFilterActive && '•'}
+                        </Button>
+                        {isFilterActive && (
+                            <Button
+                                onClick={resetFilters}
+                                sx={{ color: 'error.main' }}
+                            >
+                                إلغاء التصفية
+                            </Button>
+                        )}
                         <Button
                             startIcon={<AddCircleOutlineIcon sx={{ ml: 1.5 }} />}
                             onClick={taskOperations.handleCreateClick}
@@ -92,7 +148,7 @@ const EmployeePendingTasksLog: React.FC = () => {
                 {/* Content */}
                 {view === 'table' ? (
                     <CustomDataGrid
-                        rows={tasks}
+                        rows={filteredTasks}
                         columns={columns}
                         isLoading={isLoading}
                         getRowHeight={() => 'auto'}
@@ -100,13 +156,21 @@ const EmployeePendingTasksLog: React.FC = () => {
                         hideQuickFilter
                     />
                 ) : (
-                    <TaskCardsView
-                        tasks={tasks}
+                    <TaskCardsViewMemo
+                        tasks={filteredTasks}
                         onEdit={taskOperations.handleEditClick}
                         onDelete={taskOperations.handleDeleteClick}
                     />
                 )}
             </Box>
+
+            <TasksFilterDialog
+                open={openFilter}
+                onClose={() => setOpenFilter(false)}
+                onApply={handleApplyFilters}
+                onClear={handleClearFilters}
+                initialFilters={filterState}
+            />
 
             <TaskFormDialog
                 open={taskOperations.openDialog}
@@ -129,4 +193,5 @@ const EmployeePendingTasksLog: React.FC = () => {
     );
 };
 
-export default EmployeePendingTasksLog;
+export default EmployeeTasksLog;
+

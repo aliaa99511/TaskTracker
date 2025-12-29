@@ -46,3 +46,37 @@ export interface Attachment {
   ServerRelativeUrl: string;
   TimeCreated: string;
 }
+
+export interface FilterState {
+  searchText: string;
+  priorityFilter: string[];
+  statusFilter: string[];
+  departmentFilter: string[];
+  [key: string]: any; // For additional filters
+}
+
+export interface FilterOption {
+  id: string;
+  label: string;
+  value: string;
+  color?: string;
+}
+
+export interface FilterConfig {
+  id: string;
+  label: string;
+  options: FilterOption[];
+  type: 'chip' | 'select' | 'date' | 'text';
+  multiple?: boolean;
+}
+
+export interface TaskFilterProps {
+  filters: FilterState;
+  onFilterChange: (filters: Partial<FilterState>) => void;
+  onClearAll?: () => void;
+  filterConfigs?: FilterConfig[];
+  showActiveFilters?: boolean;
+  buttonText?: string;
+  buttonVariant?: 'text' | 'outlined' | 'contained';
+  buttonSize?: 'small' | 'medium' | 'large';
+}

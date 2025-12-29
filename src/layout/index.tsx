@@ -122,7 +122,7 @@ const Layout: React.FC<LayoutProps> = ({
                     container
                     spacing={0}
                     sx={{
-                        minHeight: "calc(100vh - 180px)",
+                        minHeight: "calc(100vh)",
                         direction: lang === "ar" ? "rtl" : "ltr",
                     }}
                 >
@@ -133,7 +133,7 @@ const Layout: React.FC<LayoutProps> = ({
                         md={3}
                         lg={2}
                         sx={{
-                            borderRight: "1px solid #eee",
+                            borderLeft: "1px solid #eee",
                             backgroundColor: "#fff",
                         }}
                     >
@@ -141,14 +141,14 @@ const Layout: React.FC<LayoutProps> = ({
                     </Grid>
 
                     {/* Content */}
-
                     <Grid item xs={12} md={9} lg={10} >
                         <Paper
                             elevation={0}
                             sx={{
                                 // p: "1rem 2rem",
                                 height: "100%",
-                                backgroundColor: "#f6f6f6"
+                                backgroundColor: "#f6f6f6",
+                                minHeight: 'calc(100vh)'
                             }}
                         >
                             {children}

@@ -84,6 +84,12 @@ export const formatDate = (value?: string) => {
     return d.toLocaleDateString('ar-EG');
 };
 
+export const safePercent = (value: number, total: number) => {
+    if (!total || total === 0) return 0;
+    return Math.round((value / total) * 100);
+};
+
+
 function hashStringToInt(str: string): number {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {

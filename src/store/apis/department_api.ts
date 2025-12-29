@@ -28,25 +28,12 @@ const departmentApi = createApi({
         return rawBaseQuery(args, api, extraOptions);
     },
     endpoints: (builder) => ({
-        fetchDepartments: builder.query<any[], number | null>({
-            providesTags: ["Departments"],
-            query: (DivisionId) => ({
-                method: "GET",
-                url: "/_api/web/lists/getbytitle('Department')/items",
-                params: {
-                    $orderBy: "Title desc",
-                    $top: 10000,
-                },
-            }),
-            transformResponse: (response: any) => response.d.results,
-        }),
-        fetchAllDepartments: builder.query<any[], void>({
+        fetchDepartments: builder.query<any[], void>({
             providesTags: ["Departments"],
             query: () => ({
                 method: "GET",
                 url: "/_api/web/lists/getbytitle('Department')/items",
                 params: {
-                    $filter: `Active eq 1 `,
                     $orderBy: "Title desc",
                     $top: 10000,
                 },
@@ -57,4 +44,6 @@ const departmentApi = createApi({
 });
 
 export { departmentApi };
-export const { useFetchDepartmentsQuery, useFetchAllDepartmentsQuery } = departmentApi;
+export const {
+    useFetchDepartmentsQuery,
+} = departmentApi;

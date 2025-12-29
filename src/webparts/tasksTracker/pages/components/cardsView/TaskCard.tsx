@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Card, Typography, Chip, Box } from '@mui/material';
-import TaskActionMenu from '../../../../../../../common/components/TaskActionMenu';
-import { formatDate, getPriorityColor } from '../../../../../../../utils/helpers';
+import TaskActionMenu from '../../../../../common/components/TaskActionMenu';
+import { formatDate, getPriorityColor } from '../../../../../utils/helpers';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import { alpha } from '@mui/material/styles';
 
@@ -34,6 +34,7 @@ const TaskCard = ({ task, onEdit, onDelete }: any) => (
                 task={task}
                 onEdit={() => onEdit(task)}
                 onDelete={() => onDelete(task.ID, task.Title)}
+            // onDelete={() => onDelete(task.ID, task.Title)}
             />
         </Box>
         <Box sx={{ p: 2, flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
@@ -86,44 +87,3 @@ const TaskCard = ({ task, onEdit, onDelete }: any) => (
 );
 
 export default TaskCard;
-
-
-
-
-
-// import * as React from 'react';
-// import { Card, Typography, Chip, Box } from '@mui/material';
-// import { formatDate, getPriorityColor, getStatusColor } from '../../../../../../../utils/helpers';
-// // import TaskComments from '../comments/TaskComments';
-// import TaskActionMenu from '../../../../../../../common/components/TaskActionMenu';
-
-// const TaskCard = ({ task, onEdit, onDelete }: any) => (
-//     <Card sx={{ borderRadius: 3, p: 2 }}>
-//         <Box display="flex" justifyContent="space-between">
-//             <Typography fontWeight={600}>{task.Title}</Typography>
-
-//             <TaskActionMenu
-//                 task={task}
-//                 onEdit={() => onEdit(task)}
-//                 onDelete={() => onDelete(task.ID, task.Title)}
-//             />
-//         </Box>
-
-//         <Typography fontSize={13}>
-//             الجهة المسؤولة: {task.ConcernedEntity}
-//         </Typography>
-
-//         <Box mt={1} display="flex" gap={1}>
-//             <Chip size="small" label={task.Priority} sx={getPriorityColor(task.Priority)} />
-//             <Chip size="small" label={task.Status} sx={getStatusColor(task.Status)} />
-//         </Box>
-
-//         <Typography fontSize={12} mt={1}>
-//             موعد التسليم: {formatDate(task.DueDate)}
-//         </Typography>
-
-//         {/* <TaskComments taskId={task.ID} /> */}
-//     </Card>
-// );
-
-// export default TaskCard;

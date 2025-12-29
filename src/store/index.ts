@@ -10,6 +10,7 @@ import { tasksApi } from './apis/tasks_api';
 import { setEmployeeInfo, setLoading } from './slices/tasks_config_slice';
 import { jobProfileApi } from './apis/jobProfile_api';
 import { taskTypeApi } from './apis/taskType_api';
+import { graphApi } from './apis/user_graph_api';
 
 const store = configureStore({
     reducer: {
@@ -22,6 +23,7 @@ const store = configureStore({
         [jobProfileApi.reducerPath]: jobProfileApi.reducer,
         [taskTypeApi.reducerPath]: taskTypeApi.reducer,
         [tasksApi.reducerPath]: tasksApi.reducer,
+        [graphApi.reducerPath]: graphApi.reducer,
     },
     middleware: (getDefaultMiddleware) => {
         return getDefaultMiddleware({
@@ -34,6 +36,7 @@ const store = configureStore({
             .concat(jobProfileApi.middleware)
             .concat(taskTypeApi.middleware)
             .concat(tasksApi.middleware)
+            .concat(graphApi.middleware)
     }
 });
 
@@ -72,9 +75,10 @@ export {
 export {
     useFetchUsersQuery,
     useFetchCurrentUserQuery,
+    useFetchEmployeeProfileQuery,
     useFetchEmployeeIdQuery,
-    useFetchUserGroupsQuery,
     useFetchEmployeeByUserIdQuery,
+    useFetchUserGroupsQuery,
 } from "./apis/user_api";
 
 export {
@@ -89,16 +93,20 @@ export {
 
 export {
     useFetchDepartmentsQuery,
-    useFetchAllDepartmentsQuery
 } from "./apis/department_api";
 
 export {
     useFetchTasksRequestsQuery,
     useFetchTasksRequestsByEmployeeIdQuery,
-    useFetchTasksTodayRequestsByManagerIdQuery,
+    useFetchTasksRequestsByEmployeeIdWithCurrentMonthQuery,
+    useFetchPendingTasksRequestsByEmployeeIdQuery,
+    useFetchRecentTasksRequestsQuery,
+    useFetchCurrentMonthTasksRequestsQuery,
     useCreateTaskMutation,
     useUpdateTaskMutation,
     useDeleteTaskMutation,
+    useFetchTaskNotesQuery,
+    useAddTaskCommentMutation,
     useUploadTaskAttachmentMutation,
     useFetchTaskAttachmentsQuery,
     useDeleteAttachmentMutation,
@@ -112,3 +120,8 @@ export {
     useFetchTaskTypeWithDepartmentQuery,
     useFetchAllTaskTypeQuery
 } from "./apis/taskType_api";
+
+export {
+    useFetchCurrentUserGraphQuery,
+    useFetchUserPhotoByEmailQuery
+} from "./apis/user_graph_api";

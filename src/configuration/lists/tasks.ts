@@ -16,7 +16,7 @@ export const createTasksList = async (listsId: TasksReferenceIds) => {
     const exists = await sp.web.lists.getByTitle(listTitle).select("Title")().catch(() => null);
 
     const fields = [
-        { title: "Employee", type: "LookUp", listId: listsId.EmployeeId }, // lookup on Employee/id
+        { title: "Employee", type: "LookUp", listId: listsId.EmployeeId },
         { title: "Department", type: "LookUp", listId: listsId.DepartmentId },
         { title: "TaskType", type: "LookUp", listId: listsId.TaskTypeId },
         { title: "ManagerID", type: "Person or Group" },
@@ -24,6 +24,14 @@ export const createTasksList = async (listsId: TasksReferenceIds) => {
         { title: "DueDate", type: "Date" },
         { title: "ConcernedEntity", type: "Text" },
         { title: "Description", type: "MultilineText" },
+        {
+            title: "Notes",
+            type: "MultilineText",
+            richText: true,
+            appendOnly: true,
+            numLines: 6,
+            richTextMode: "FullHtml"  // or "Compatible" for limited HTML
+        },
         { title: "Priority", type: "Choice", options: GetPriorityOptions() },
         { title: "Status", type: "Choice", options: GetStatusOptions() },
     ];
@@ -33,7 +41,7 @@ export const createTasksList = async (listsId: TasksReferenceIds) => {
     } else {
         listInfo = await sp.web.lists.getByTitle(listTitle);
         const results = await sp.web.lists.getByTitle(listTitle).fields.get();
-        listFields = results.map(Field => Field.Title)
+        listFields = results.map(field => field.Title)
     }
 
     await CreateFields({ listFields, listInfo, fields });

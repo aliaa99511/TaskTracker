@@ -7,10 +7,3 @@ export const GetPriorityOptions = () => {
 }
 
 
-// export const GetPriorityOptions = () => {
-//     return [
-//         "High",
-//         "Medium",
-//         "Low"
-//     ];
-// }

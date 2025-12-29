@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { toast } from 'react-toastify';
-import { TaskFormData } from '../../../../../components/ITasksTrackerProps';
+import { TaskFormData } from '../../../../components/ITasksTrackerProps';
 
 export const useTaskOperations = (
     employeeId: number | null | undefined,
@@ -72,6 +72,7 @@ export const useTaskOperations = (
         }
     }, [isDeleting]);
 
+    // Also fix uploadAttachments and deleteAttachments callbacks
     const uploadAttachments = useCallback(async (taskId: number, files: File[]) => {
         if (!files.length) return;
 
@@ -85,7 +86,7 @@ export const useTaskOperations = (
         });
 
         await Promise.all(uploadPromises);
-    }, [uploadAttachmentMutation]);
+    }, [uploadAttachmentMutation]); // ADD DEPENDENCY
 
     const deleteAttachments = useCallback(async (taskId: number, fileNames: string[]) => {
         if (!fileNames.length) return;
@@ -99,7 +100,7 @@ export const useTaskOperations = (
         });
 
         await Promise.all(deletePromises);
-    }, [deleteAttachmentMutation]);
+    }, [deleteAttachmentMutation]); // ADD DEPENDENCY
 
     const handleSubmit = useCallback(async (formData: TaskFormData) => {
         try {
@@ -108,7 +109,7 @@ export const useTaskOperations = (
                 Description: formData.Description || '',
                 StartDate: formData.StartDate?.toISOString(),
                 DueDate: formData.DueDate?.toISOString(),
-                Status: formData.Status,
+                Status: formData.Id ? formData.Status : 'لم يبدأ بعد',
                 Priority: formData.Priority,
                 TaskTypeId: formData.TaskTypeId ? Number(formData.TaskTypeId) : null,
                 DepartmentId: formData.DepartmentId ? Number(formData.DepartmentId) : null,
@@ -117,31 +118,23 @@ export const useTaskOperations = (
                 ManagerIDId: formData.ManagerIDId || undefined,
             };
 
-            // Update existing task
             if (formData.Id) {
                 await updateTaskMutation({
                     id: formData.Id,
                     data: submissionData
                 }).unwrap();
 
-                // Handle file operations in parallel
-                const fileOperations = [];
-
+                // Handle file operations
                 if (formData.Attachments?.length) {
-                    fileOperations.push(uploadAttachments(formData.Id, formData.Attachments));
+                    await uploadAttachments(formData.Id, formData.Attachments);
                 }
 
                 if (formData.FilesToDelete?.length) {
-                    fileOperations.push(deleteAttachments(formData.Id, formData.FilesToDelete));
-                }
-
-                if (fileOperations.length) {
-                    await Promise.all(fileOperations);
+                    await deleteAttachments(formData.Id, formData.FilesToDelete);
                 }
 
                 toast.success('تم تحديث المهمة بنجاح');
             } else {
-                // Create new task
                 const response = await createTaskMutation(submissionData).unwrap();
                 const taskId = response.d?.Id;
 
@@ -164,9 +157,9 @@ export const useTaskOperations = (
         employeeId,
         createTaskMutation,
         updateTaskMutation,
-        uploadAttachments,
-        deleteAttachments,
-        refetchTasks
+        refetchTasks,
+        uploadAttachmentMutation, // ADD THIS
+        deleteAttachmentMutation  // ADD THIS
     ]);
 
     return {
@@ -184,3 +177,4 @@ export const useTaskOperations = (
         handleSubmit,
     };
 };
+

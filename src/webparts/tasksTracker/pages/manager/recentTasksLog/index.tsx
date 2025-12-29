@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useCallback } from 'react'
 import { useFetchRecentTasksRequestsQuery } from '../../../../../store';
 import { getManagerColumns } from '../../../../../common/components/CommonColumns';
 import { Box, Typography } from '@mui/material';
@@ -12,12 +12,23 @@ const ManagerRecentTasksLog = () => {
 
     console.log('recentTasks', recentTasks)
 
-    const [view, setView] = React.useState<'table' | 'cards'>('table');
+    const [view, setView] = useState<'table' | 'cards'>('table');
+    const [activeCommentRowId, setActiveCommentRowId] = useState<number | null>(null);
+    const [commentAnchorEl, setCommentAnchorEl] = useState<HTMLButtonElement | null>(null);
+
+    // Handle click outside to close comment box
+    const handleGridClick = useCallback(() => {
+        setActiveCommentRowId(null);
+        setCommentAnchorEl(null);
+    }, []);
 
     const columns = getManagerColumns(
         undefined,
-        undefined
+        undefined,
+        activeCommentRowId,
+        setActiveCommentRowId
     );
+
     return (
         <Box sx={{ p: 2 }}>
             <Box sx={{ background: "#fff", p: 3, borderRadius: 3 }}>
@@ -38,17 +49,28 @@ const ManagerRecentTasksLog = () => {
 
                 {/* Content */}
                 {view === 'table' ? (
-                    <CustomDataGrid
-                        rows={recentTasks}
-                        columns={columns}
-                        isLoading={isLoading}
-                        getRowHeight={() => 'auto'}
-                        sx={dataGridStyles}
-                        hideQuickFilter
-                    />
+                    <Box onClick={handleGridClick}>
+                        <CustomDataGrid
+                            rows={recentTasks}
+                            columns={columns}
+                            isLoading={isLoading}
+                            getRowHeight={() => 'auto'}
+                            sx={{
+                                ...dataGridStyles,
+                                '& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within': {
+                                    outline: 'none',
+                                },
+                            }}
+                            hideQuickFilter
+                        />
+                    </Box>
                 ) : (
                     <TaskCardsView
                         tasks={recentTasks}
+                        activeCommentRowId={activeCommentRowId}
+                        setActiveCommentRowId={setActiveCommentRowId}
+                        commentAnchorEl={commentAnchorEl}
+                        setCommentAnchorEl={setCommentAnchorEl}
                     />
                 )}
             </Box>
@@ -56,4 +78,4 @@ const ManagerRecentTasksLog = () => {
     )
 }
 
-export default ManagerRecentTasksLog
+export default ManagerRecentTasksLog;

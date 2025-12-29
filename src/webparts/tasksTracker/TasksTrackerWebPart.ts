@@ -15,6 +15,7 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/ar';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
+import "../tasksTracker/components/TasksTracker.module.scss"
 
 // Initialize dayjs plugins
 dayjs.extend(relativeTime);

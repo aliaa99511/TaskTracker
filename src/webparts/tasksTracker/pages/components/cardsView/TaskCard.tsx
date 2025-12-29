@@ -1,89 +1,151 @@
 import * as React from 'react';
-import { Card, Typography, Chip, Box } from '@mui/material';
+import { Card, Typography, Chip, Box, IconButton } from '@mui/material';
 import TaskActionMenu from '../../../../../common/components/TaskActionMenu';
 import { formatDate, getPriorityColor } from '../../../../../utils/helpers';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
+import TextsmsIcon from '@mui/icons-material/Textsms';
 import { alpha } from '@mui/material/styles';
+import Badge from '@mui/material/Badge';
 
-const TaskCard = ({ task, onEdit, onDelete }: any) => (
-    <Card
-        sx={{
-            borderRadius: 3,
-            backgroundColor: '#fff',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            height: '100%'
-        }}
-    >
-        {/* Top row: title + menu */}
-        <Box
-            display="flex"
-            justifyContent="space-between"
-            alignItems="center"
+interface TaskCardProps {
+    task: any;
+    onEdit?: (task: any) => void;
+    onDelete?: (id: number, title: string) => void;
+    activeCommentRowId?: number | null;
+    setActiveCommentRowId?: React.Dispatch<React.SetStateAction<number | null>>;
+    commentAnchorEl?: HTMLButtonElement | null;
+    setCommentAnchorEl?: React.Dispatch<React.SetStateAction<HTMLButtonElement | null>>;
+}
+
+const TaskCard = ({
+    task,
+    onEdit,
+    onDelete,
+    activeCommentRowId,
+    setActiveCommentRowId,
+    commentAnchorEl,
+    setCommentAnchorEl
+}: TaskCardProps) => {
+    const isActive = activeCommentRowId === task.ID;
+
+    const handleToggleComment = (event: React.MouseEvent<HTMLButtonElement>) => {
+        if (!setActiveCommentRowId || !setCommentAnchorEl) return;
+
+        if (activeCommentRowId === task.ID) {
+            setActiveCommentRowId(null);
+            setCommentAnchorEl(null);
+        } else {
+            setActiveCommentRowId(task.ID);
+            setCommentAnchorEl(event.currentTarget);
+        }
+    };
+
+    return (
+        <Card
             sx={{
-                backgroundColor: (theme) => alpha(theme.palette.primary.main, 0.1),
-                p: 1,
+                borderRadius: 3,
+                backgroundColor: '#fff',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                height: '100%',
+                position: 'relative'
             }}
         >
-            <Typography fontWeight={600} fontSize={16}>
-                {task.Title}
-            </Typography>
-            <TaskActionMenu
-                task={task}
-                onEdit={() => onEdit(task)}
-                onDelete={() => onDelete(task.ID, task.Title)}
-            // onDelete={() => onDelete(task.ID, task.Title)}
-            />
-        </Box>
-        <Box sx={{ p: 2, flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-
-            {/* Responsible entity & Priority */}
-            <Box mt={1} display="flex" gap={1} justifyContent="space-between" alignItems="center">
-                <Typography fontSize={13} color="text.secondary" >
-                    الجهة المسؤولة: {task.ConcernedEntity}
+            {/* Top row: title + menu */}
+            <Box
+                display="flex"
+                justifyContent="space-between"
+                alignItems="center"
+                sx={{
+                    backgroundColor: (theme) => alpha(theme.palette.primary.main, 0.1),
+                    p: 1,
+                }}
+            >
+                <Typography fontWeight={600} fontSize={16}>
+                    {task.Title}
                 </Typography>
-                <Chip
-                    size="small"
-                    label={`أولوية ${task.Priority}`}
-                    sx={{ ...getPriorityColor(task.Priority), fontSize: 12, fontWeight: 500 }}
-                />
+                <Box display="flex" alignItems="center" gap={1}>
+                    {/* Comment Button for Card View */}
+                    {setActiveCommentRowId && setCommentAnchorEl && (
+                        <IconButton
+                            size="small"
+                            onClick={handleToggleComment}
+                            sx={{
+                                color: isActive ? 'primary.main' : 'inherit'
+                            }}
+                        >
+                            <Badge
+                                badgeContent={task.CommentsCount || 0}
+                                color="error"
+                                max={99}
+                            >
+                                {(task.CommentsCount || 0) > 0 ? (
+                                    <TextsmsIcon fontSize="small" />
+                                ) : (
+                                    <ChatBubbleOutlineIcon fontSize="small" />
+                                )}
+                            </Badge>
+                        </IconButton>
+                    )}
+                    {onEdit && onDelete && (
+                        <TaskActionMenu
+                            task={task}
+                            onEdit={() => onEdit(task)}
+                            onDelete={() => onDelete(task.ID, task.Title)}
+                        />
+                    )}
+                </Box>
             </Box>
 
-            <Box mt={1} display="flex" gap={1} justifyContent="space-between" alignItems="center">
-                <Typography fontSize={13} color="text.secondary" >
-                    الوصف: {task.Description}
-                </Typography>
-            </Box>
+            <Box sx={{ p: 2, flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                {/* Responsible entity & Priority */}
+                <Box mt={1} display="flex" gap={1} justifyContent="space-between" alignItems="center">
+                    <Typography fontSize={13} color="text.secondary" >
+                        الجهة المسؤولة: {task.ConcernedEntity}
+                    </Typography>
+                    <Chip
+                        size="small"
+                        label={`أولوية ${task.Priority}`}
+                        sx={{ ...getPriorityColor(task.Priority), fontSize: 12, fontWeight: 500 }}
+                    />
+                </Box>
 
-            {/* Due date + optional comment icon */}
-            <Box mt={1} display="flex" justifyContent="space-between" alignItems="center">
-                <Typography fontSize={12} color="text.secondary">
-                    موعد التسليم: {formatDate(task.DueDate)}
-                </Typography>
+                <Box mt={1} display="flex" gap={1} justifyContent="space-between" alignItems="center">
+                    <Typography fontSize={13} color="text.secondary" >
+                        الوصف: {task.Description}
+                    </Typography>
+                </Box>
 
-                {task.NewCommentsCount > 0 && (
-                    <Box
-                        sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 0.3,
-                            backgroundColor: '#F5F5F5',
-                            px: 0.8,
-                            py: 0.3,
-                            borderRadius: 1,
-                        }}
-                    >
-                        <ChatBubbleOutlineIcon sx={{ fontSize: 14, color: 'gray' }} />
-                        <Typography fontSize={12} color="gray">
-                            {task.NewCommentsCount}
-                        </Typography>
-                    </Box>
-                )}
+                {/* Due date + optional comment icon */}
+                <Box mt={1} display="flex" justifyContent="space-between" alignItems="center">
+                    <Typography fontSize={12} color="text.secondary">
+                        موعد التسليم: {formatDate(task.DueDate)}
+                    </Typography>
+
+                    {task.NewCommentsCount > 0 && (
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 0.3,
+                                backgroundColor: '#F5F5F5',
+                                px: 0.8,
+                                py: 0.3,
+                                borderRadius: 1,
+                            }}
+                        >
+                            <ChatBubbleOutlineIcon sx={{ fontSize: 14, color: 'gray' }} />
+                            <Typography fontSize={12} color="gray">
+                                {task.NewCommentsCount}
+                            </Typography>
+                        </Box>
+                    )}
+                </Box>
             </Box>
-        </Box>
-    </Card>
-);
+        </Card>
+    );
+};
 
 export default TaskCard;

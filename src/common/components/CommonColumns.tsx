@@ -1,15 +1,18 @@
 import * as React from 'react';
 import { GridColDef } from '@mui/x-data-grid';
-import {
-    Chip,
-    IconButton, Badge, Box
-} from '@mui/material';
-import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
+import { Chip, Popover } from '@mui/material';
 import { formatDate, getPriorityColor, getStatusColor } from '../../utils/helpers';
 import TaskActionMenu from './TaskActionMenu';
+import { TaskCommentButton } from '../../webparts/tasksTracker/pages/components/comments/TaskCommentButton';
 import TaskComments from '../../webparts/tasksTracker/pages/components/comments/TaskComments';
 
-export const getBaseColumns = ({ logType, onEdit, onDelete }: any): GridColDef[] => {
+export const getBaseColumns = ({
+    logType,
+    onEdit,
+    onDelete,
+    activeCommentRowId,
+    setActiveCommentRowId
+}: any): GridColDef[] => {
     const columns: GridColDef[] = [];
 
     if (logType !== 'employee') {
@@ -32,6 +35,7 @@ export const getBaseColumns = ({ logType, onEdit, onDelete }: any): GridColDef[]
         headerName: "الجهة المسؤولة",
         flex: 0.6
     });
+
     if (logType !== 'employee') {
         columns.push({
             field: "Department",
@@ -40,12 +44,14 @@ export const getBaseColumns = ({ logType, onEdit, onDelete }: any): GridColDef[]
             renderCell: (p) => p.value?.Title || "-"
         });
     }
+
     columns.push({
         field: "TaskType",
         headerName: "نوع المهمة",
         flex: 0.5,
         renderCell: (p) => p.value?.Title || "-"
     });
+
     columns.push({
         field: "Status",
         headerName: "الحالة",
@@ -54,6 +60,7 @@ export const getBaseColumns = ({ logType, onEdit, onDelete }: any): GridColDef[]
             <Chip label={p.value} size="small" sx={getStatusColor(p.value)} />
         )
     });
+
     columns.push({
         field: "Priority",
         headerName: "الأولوية",
@@ -86,36 +93,60 @@ export const getBaseColumns = ({ logType, onEdit, onDelete }: any): GridColDef[]
         sortable: false,
         filterable: false,
         renderCell: (params) => {
-            const [open, setOpen] = React.useState(false);
+            const isActive = activeCommentRowId === params.row.ID;
+            const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
+
+            const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+                event.stopPropagation();
+                if (activeCommentRowId === params.row.ID) {
+                    setActiveCommentRowId(null);
+                    setAnchorEl(null);
+                } else {
+                    setActiveCommentRowId(params.row.ID);
+                    setAnchorEl(event.currentTarget);
+                }
+            };
+
+            const handleClose = () => {
+                setActiveCommentRowId(null);
+                setAnchorEl(null);
+            };
 
             return (
-                <Box sx={{ position: 'relative' }} >
-                    <IconButton size="small" onClick={() => setOpen(!open)}>
-                        <Badge badgeContent={params.row.CommentsCount || 0} color="error">
-                            <ChatBubbleOutlineIcon fontSize="small" />
-                        </Badge>
-                    </IconButton>
-
-                    {open && (
-                        <Box
-                            sx={{
-                                position: 'absolute',
-                                top: 5,
-                                left: 32,
-                                zIndex: 222220,
-                                background: '#fff',
-                                boxShadow: 4,
-                                borderRadius: 2,
-                                p: 1,
+                <>
+                    <TaskCommentButton
+                        taskId={params.row.ID}
+                        commentsCount={params.row.CommentsCount || 0}
+                        isActive={isActive}
+                        onClick={handleClick}
+                    />
+                    <Popover
+                        open={isActive}
+                        anchorEl={anchorEl}
+                        onClose={handleClose}
+                        anchorOrigin={{
+                            vertical: 'bottom',
+                            horizontal: 'left',
+                        }}
+                        transformOrigin={{
+                            vertical: 'top',
+                            horizontal: 'left',
+                        }}
+                        PaperProps={{
+                            sx: {
                                 width: 320,
-                                maxHeight: 400,
-                                overflow: 'hidden'
-                            }}
-                        >
-                            <TaskComments taskId={params.row.ID} />
-                        </Box>
-                    )}
-                </Box>
+                                height: 350,
+                                maxHeight: 350,
+                                overflow: 'hidden',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                borderRadius: 2,
+                            }
+                        }}
+                    >
+                        <TaskComments taskId={params.row.ID} onClose={handleClose} />
+                    </Popover>
+                </>
             );
         }
     });
@@ -140,9 +171,28 @@ export const getBaseColumns = ({ logType, onEdit, onDelete }: any): GridColDef[]
     return columns;
 };
 
+export const getEmployeeColumns = (
+    onEdit?: any,
+    onDelete?: any,
+    activeCommentRowId?: number | null,
+    setActiveCommentRowId?: React.Dispatch<React.SetStateAction<number | null>>
+) => getBaseColumns({
+    logType: 'employee',
+    onEdit,
+    onDelete,
+    activeCommentRowId,
+    setActiveCommentRowId
+});
 
-export const getEmployeeColumns = (onEdit: any, onDelete: any) =>
-    getBaseColumns({ logType: 'employee', onEdit, onDelete });
-
-export const getManagerColumns = (onEdit: any, onDelete: any) =>
-    getBaseColumns({ logType: 'manager' });
+export const getManagerColumns = (
+    onEdit?: any,
+    onDelete?: any,
+    activeCommentRowId?: number | null,
+    setActiveCommentRowId?: React.Dispatch<React.SetStateAction<number | null>>
+) => getBaseColumns({
+    logType: 'manager',
+    onEdit,
+    onDelete,
+    activeCommentRowId,
+    setActiveCommentRowId
+});

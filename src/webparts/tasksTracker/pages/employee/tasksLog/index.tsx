@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import {
     useCreateTaskMutation,
     useDeleteAttachmentMutation,
@@ -29,8 +29,10 @@ const EmployeeTasksLog: React.FC = () => {
         skip: !employeeId,
     });
 
-    const [openFilter, setOpenFilter] = React.useState(false);
-    const [view, setView] = React.useState<'table' | 'cards'>('table');
+    const [openFilter, setOpenFilter] = useState(false);
+    const [view, setView] = useState<'table' | 'cards'>('table');
+    const [activeCommentRowId, setActiveCommentRowId] = useState<number | null>(null);
+    const [commentAnchorEl, setCommentAnchorEl] = useState<HTMLButtonElement | null>(null);
 
     // Use the tasks filter hook
     const {
@@ -42,9 +44,9 @@ const EmployeeTasksLog: React.FC = () => {
         isFilterActive
     } = useTasksFilter({
         initialTasks: tasks,
-        onFilterChange: React.useCallback((filtered) => {
+        onFilterChange: useCallback((filtered) => {
             // Optional: Additional logic when filters change
-        }, []) // Empty dependency array to prevent recreating function
+        }, [])
     });
 
     const [createTask] = useCreateTaskMutation();
@@ -63,20 +65,27 @@ const EmployeeTasksLog: React.FC = () => {
         deleteAttachment
     );
 
+    // Handle click outside to close comment box
+    const handleGridClick = useCallback(() => {
+        setActiveCommentRowId(null);
+        setCommentAnchorEl(null);
+    }, []);
+
     const columns = getEmployeeColumns(
         taskOperations.handleEditClick,
-        taskOperations.handleDeleteClick
+        taskOperations.handleDeleteClick,
+        activeCommentRowId,
+        setActiveCommentRowId
     );
 
-    const handleApplyFilters = React.useCallback((filters: any) => {
-        // Update filter state from dialog
+    const handleApplyFilters = useCallback((filters: any) => {
         Object.keys(filters).forEach(key => {
             handleFilterChange(key as keyof typeof filterState, filters[key]);
         });
         setOpenFilter(false);
-    }, [handleFilterChange]);
+    }, [handleFilterChange, filterState]);
 
-    const handleClearFilters = React.useCallback(() => {
+    const handleClearFilters = useCallback(() => {
         clearFilters();
         setOpenFilter(false);
     }, [clearFilters]);
@@ -147,19 +156,30 @@ const EmployeeTasksLog: React.FC = () => {
 
                 {/* Content */}
                 {view === 'table' ? (
-                    <CustomDataGrid
-                        rows={filteredTasks}
-                        columns={columns}
-                        isLoading={isLoading}
-                        getRowHeight={() => 'auto'}
-                        sx={dataGridStyles}
-                        hideQuickFilter
-                    />
+                    <Box onClick={handleGridClick}>
+                        <CustomDataGrid
+                            rows={filteredTasks}
+                            columns={columns}
+                            isLoading={isLoading}
+                            getRowHeight={() => 'auto'}
+                            sx={{
+                                ...dataGridStyles,
+                                '& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within': {
+                                    outline: 'none',
+                                },
+                            }}
+                            hideQuickFilter
+                        />
+                    </Box>
                 ) : (
                     <TaskCardsViewMemo
                         tasks={filteredTasks}
                         onEdit={taskOperations.handleEditClick}
                         onDelete={taskOperations.handleDeleteClick}
+                        activeCommentRowId={activeCommentRowId}
+                        setActiveCommentRowId={setActiveCommentRowId}
+                        commentAnchorEl={commentAnchorEl}
+                        setCommentAnchorEl={setCommentAnchorEl}
                     />
                 )}
             </Box>
@@ -194,4 +214,3 @@ const EmployeeTasksLog: React.FC = () => {
 };
 
 export default EmployeeTasksLog;
-

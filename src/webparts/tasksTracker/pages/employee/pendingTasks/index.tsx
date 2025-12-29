@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import {
     useCreateTaskMutation,
     useDeleteAttachmentMutation,
@@ -26,9 +26,10 @@ const EmployeePendingTasksLog: React.FC = () => {
         useFetchPendingTasksRequestsByEmployeeIdQuery(employeeId as number, {
             skip: !employeeId,
         });
-    console.log('tasks', tasks)
 
-    const [view, setView] = React.useState<'table' | 'cards'>('table');
+    const [view, setView] = useState<'table' | 'cards'>('table');
+    const [activeCommentRowId, setActiveCommentRowId] = useState<number | null>(null);
+    const [commentAnchorEl, setCommentAnchorEl] = useState<HTMLButtonElement | null>(null);
 
     const [createTask] = useCreateTaskMutation();
     const [updateTask] = useUpdateTaskMutation();
@@ -46,9 +47,17 @@ const EmployeePendingTasksLog: React.FC = () => {
         deleteAttachment
     );
 
+    // Handle click outside to close comment box
+    const handleGridClick = useCallback(() => {
+        setActiveCommentRowId(null);
+        setCommentAnchorEl(null);
+    }, []);
+
     const columns = getEmployeeColumns(
         taskOperations.handleEditClick,
-        taskOperations.handleDeleteClick
+        taskOperations.handleDeleteClick,
+        activeCommentRowId,
+        setActiveCommentRowId
     );
 
     return (
@@ -91,19 +100,30 @@ const EmployeePendingTasksLog: React.FC = () => {
 
                 {/* Content */}
                 {view === 'table' ? (
-                    <CustomDataGrid
-                        rows={tasks}
-                        columns={columns}
-                        isLoading={isLoading}
-                        getRowHeight={() => 'auto'}
-                        sx={dataGridStyles}
-                        hideQuickFilter
-                    />
+                    <Box onClick={handleGridClick}>
+                        <CustomDataGrid
+                            rows={tasks}
+                            columns={columns}
+                            isLoading={isLoading}
+                            getRowHeight={() => 'auto'}
+                            sx={{
+                                ...dataGridStyles,
+                                '& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within': {
+                                    outline: 'none',
+                                },
+                            }}
+                            hideQuickFilter
+                        />
+                    </Box>
                 ) : (
                     <TaskCardsView
                         tasks={tasks}
                         onEdit={taskOperations.handleEditClick}
                         onDelete={taskOperations.handleDeleteClick}
+                        activeCommentRowId={activeCommentRowId}
+                        setActiveCommentRowId={setActiveCommentRowId}
+                        commentAnchorEl={commentAnchorEl}
+                        setCommentAnchorEl={setCommentAnchorEl}
                     />
                 )}
             </Box>

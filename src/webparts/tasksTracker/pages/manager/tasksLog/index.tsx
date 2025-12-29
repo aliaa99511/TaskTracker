@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useCallback } from 'react'
 import { useFetchCurrentMonthTasksRequestsQuery } from '../../../../../store';
 import { getManagerColumns } from '../../../../../common/components/CommonColumns';
 import { Box, Button, Typography } from '@mui/material';
@@ -9,14 +9,15 @@ import ToggleButtonView from '../../../../../common/components/ToggleButtonView'
 import TasksFilterDialog from '../../components/taskFilter/TasksFilterDialog';
 import { useTasksFilter } from '../../components/taskFilter/hooks/useTasksFilter';
 import TuneIcon from '@mui/icons-material/Tune';
-import ManagerTaskStatistics from '../../manager/statistics/ManagerTaskStatistics';
+import ManagerTaskStatistics from './statistics/ManagerTaskStatistics';
 
 const ManagerTasksLog = () => {
     const { data: tasks = [], isLoading } = useFetchCurrentMonthTasksRequestsQuery();
 
-    console.log('Current Month Tasks', tasks);
-    const [view, setView] = React.useState<'table' | 'cards'>('table');
-    const [openFilter, setOpenFilter] = React.useState(false);
+    const [view, setView] = useState<'table' | 'cards'>('table');
+    const [openFilter, setOpenFilter] = useState(false);
+    const [activeCommentRowId, setActiveCommentRowId] = useState<number | null>(null);
+    const [commentAnchorEl, setCommentAnchorEl] = useState<HTMLButtonElement | null>(null);
 
     // Extract unique employees from tasks data
     const employees = React.useMemo(() => {
@@ -44,28 +45,35 @@ const ManagerTasksLog = () => {
         isFilterActive
     } = useTasksFilter({
         initialTasks: tasks,
-        includeEmployeeFilter: true, // Enable employee filter for manager view
-        onFilterChange: React.useCallback((filtered) => {
+        includeEmployeeFilter: true,
+        onFilterChange: useCallback((filtered) => {
             // Optional: Additional logic when filters change
         }, [])
     });
 
-    const handleApplyFilters = React.useCallback((filters: any) => {
-        // Update filter state from dialog
+    // Handle click outside to close comment box
+    const handleGridClick = useCallback(() => {
+        setActiveCommentRowId(null);
+        setCommentAnchorEl(null);
+    }, []);
+
+    const handleApplyFilters = useCallback((filters: any) => {
         Object.keys(filters).forEach(key => {
             handleFilterChange(key as keyof typeof filterState, filters[key]);
         });
         setOpenFilter(false);
-    }, [handleFilterChange]);
+    }, [handleFilterChange, filterState]);
 
-    const handleClearFilters = React.useCallback(() => {
+    const handleClearFilters = useCallback(() => {
         clearFilters();
         setOpenFilter(false);
     }, [clearFilters]);
 
     const columns = getManagerColumns(
         undefined,
-        undefined
+        undefined,
+        activeCommentRowId,
+        setActiveCommentRowId
     );
 
     return (
@@ -116,17 +124,28 @@ const ManagerTasksLog = () => {
 
                 {/* Content */}
                 {view === 'table' ? (
-                    <CustomDataGrid
-                        rows={filteredTasks} // Use filteredTasks instead of tasks
-                        columns={columns}
-                        isLoading={isLoading}
-                        getRowHeight={() => 'auto'}
-                        sx={dataGridStyles}
-                        hideQuickFilter
-                    />
+                    <Box onClick={handleGridClick}>
+                        <CustomDataGrid
+                            rows={filteredTasks}
+                            columns={columns}
+                            isLoading={isLoading}
+                            getRowHeight={() => 'auto'}
+                            sx={{
+                                ...dataGridStyles,
+                                '& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within': {
+                                    outline: 'none',
+                                },
+                            }}
+                            hideQuickFilter
+                        />
+                    </Box>
                 ) : (
                     <TaskCardsView
-                        tasks={filteredTasks} // Use filteredTasks instead of tasks
+                        tasks={filteredTasks}
+                        activeCommentRowId={activeCommentRowId}
+                        setActiveCommentRowId={setActiveCommentRowId}
+                        commentAnchorEl={commentAnchorEl}
+                        setCommentAnchorEl={setCommentAnchorEl}
                     />
                 )}
 
@@ -136,8 +155,8 @@ const ManagerTasksLog = () => {
                     onApply={handleApplyFilters}
                     onClear={handleClearFilters}
                     initialFilters={filterState}
-                    includeEmployeeFilter={true} // Enable employee filter in dialog
-                    employees={employees} // Pass employees data
+                    includeEmployeeFilter={true}
+                    employees={employees}
                 />
             </Box>
         </Box>

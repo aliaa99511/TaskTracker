@@ -1,18 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Box,
     Typography,
     TextField,
     IconButton,
     CircularProgress,
+    IconButton as CloseButton,
+    Tooltip,
 } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
+import CloseIcon from '@mui/icons-material/Close';
 import { useFetchTaskNotesQuery, useAddTaskCommentMutation } from '../../../../../store';
 import { formatDate } from '../../../../../utils/helpers';
 import CommentSkeleton from './CommentSkeleton';
 import UserAvatar from './UserAvatar';
 
-const TaskComments = ({ taskId }: { taskId: number }) => {
+interface TaskCommentsProps {
+    taskId: number;
+    onClose?: () => void;
+}
+
+const TaskComments: React.FC<TaskCommentsProps> = ({ taskId, onClose }) => {
     const [newComment, setNewComment] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -52,30 +60,63 @@ const TaskComments = ({ taskId }: { taskId: number }) => {
     return (
         <Box sx={{
             background: '#F7F4EF',
-            p: 1.5,
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%',
             borderRadius: 2,
-            maxWidth: 320,
-            minWidth: 280,
-            maxHeight: 400,
-            overflow: 'auto'
+            overflow: 'hidden'
         }}>
-            <Typography fontSize={14} fontWeight={500} mb={2}>
-                التعليقات ({filteredComments.length})
-            </Typography>
+            {/* Header - Fixed with close button */}
+            <Box sx={{
+                p: 1.5,
+                pb: 1,
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+            }}>
+                <Typography fontSize={14} fontWeight={500}>
+                    التعليقات ({filteredComments.length})
+                </Typography>
+                {onClose && (
+                    <Tooltip title="إغلاق">
+                        <CloseButton
+                            size="small"
+                            onClick={onClose}
+                            sx={{
+                                padding: 0.5,
+                                '&:hover': { backgroundColor: 'rgba(0,0,0,0.04)' }
+                            }}
+                        >
+                            <CloseIcon fontSize="small" />
+                        </CloseButton>
+                    </Tooltip>
+                )}
+            </Box>
 
-            {/* Comments List */}
-            <Box sx={{ mb: 2 }}>
+            {/* Comments List - Scrollable */}
+            <Box sx={{
+                flex: 1,
+                overflow: 'auto',
+                px: 1.5
+            }}>
                 {isLoading ? (
                     Array.from({ length: 2 }).map((_, i) => (
                         <CommentSkeleton key={i} />
                     ))
                 ) : filteredComments.length === 0 ? (
-                    <Typography color="text.secondary" fontSize={12} textAlign="center">
+                    <Typography color="text.secondary" fontSize={12} textAlign="center" py={2}>
                         لا توجد تعليقات
                     </Typography>
                 ) : (
                     filteredComments.map((comment: any, idx: any) => (
-                        <Box key={idx} sx={{ mb: 2, pb: 2, borderBottom: idx < filteredComments.length - 1 ? '1px solid rgba(0,0,0,0.1)' : 'none' }}>
+                        <Box
+                            key={idx}
+                            sx={{
+                                mb: 2,
+                                pb: 2,
+                                borderBottom: idx < filteredComments.length - 1 ? '1px solid rgba(0,0,0,0.1)' : 'none'
+                            }}
+                        >
                             <Box display="flex" alignItems="center" gap={1} mb={1}>
                                 <UserAvatar
                                     name={comment.Editor?.LookupValue || 'Unknown'}
@@ -108,8 +149,18 @@ const TaskComments = ({ taskId }: { taskId: number }) => {
                 )}
             </Box>
 
-            {/* Add Comment Form */}
-            <Box component="form" onSubmit={handleSubmitComment} sx={{ mt: 2 }}>
+            {/* Add Comment Form - Fixed at bottom */}
+            <Box
+                component="form"
+                onSubmit={handleSubmitComment}
+                sx={{
+                    p: 1.5,
+                    pt: 1,
+                    background: '#F7F4EF',
+                    borderTop: '1px solid rgba(0,0,0,0.1)',
+                    flexShrink: 0
+                }}
+            >
                 <TextField
                     fullWidth
                     size="small"
@@ -151,4 +202,3 @@ const TaskComments = ({ taskId }: { taskId: number }) => {
 };
 
 export default TaskComments;
-

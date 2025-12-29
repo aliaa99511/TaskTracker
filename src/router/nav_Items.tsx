@@ -18,7 +18,7 @@ export interface NavItem {
 const ROUTES_CONFIG = {
     EMPLOYEE: {
         PENDING_TASKS: {
-            label: "المهام المعلقة",
+            label: "قيد الإنتظار",
             to: "/myPendingTasksLog",
             icon: <HourglassBottomIcon fontSize="small" sx={styles} />
         },
@@ -35,7 +35,7 @@ const ROUTES_CONFIG = {
             icon: <DashboardIcon fontSize="small" sx={styles} />
         },
         TEAM_TASKS: {
-            label: "مهام الفريق",
+            label: "سجل المهام",
             to: "/managerTasksLog",
             icon: <DashboardIcon fontSize="small" sx={styles} />
         }

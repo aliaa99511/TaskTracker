@@ -1,15 +1,16 @@
 import React, { useState, useCallback } from 'react'
 import { useFetchCurrentMonthTasksRequestsQuery } from '../../../../../store';
-import { getManagerColumns } from '../../../../../common/components/CommonColumns';
 import { Box, Button, Typography } from '@mui/material';
 import CustomDataGrid from '../../../../../common/table';
 import { dataGridStyles } from '../../../../../assets/styles/TableStyles/dataGridStyles.';
-import TaskCardsView from '../../components/cardsView/TaskCardsView';
 import ToggleButtonView from '../../../../../common/components/ToggleButtonView';
-import TasksFilterDialog from '../../components/taskFilter/TasksFilterDialog';
 import { useTasksFilter } from '../../components/taskFilter/hooks/useTasksFilter';
 import TuneIcon from '@mui/icons-material/Tune';
-import ManagerTaskStatistics from './statistics/ManagerTaskStatistics';
+import ManagerTaskStatistics from '../statistics/ManagerTaskStatistics';
+import TaskCardsView from '../../components/taskCardsView';
+import TasksFilterDialog from '../../components/taskFilter';
+import TaskDetailsDialog from '../../components/taskdetails';
+import { getManagerColumns } from '../../components/tableColumns';
 
 const ManagerTasksLog = () => {
     const { data: tasks = [], isLoading } = useFetchCurrentMonthTasksRequestsQuery();
@@ -18,6 +19,8 @@ const ManagerTasksLog = () => {
     const [openFilter, setOpenFilter] = useState(false);
     const [activeCommentRowId, setActiveCommentRowId] = useState<number | null>(null);
     const [commentAnchorEl, setCommentAnchorEl] = useState<HTMLButtonElement | null>(null);
+    const [selectedTask, setSelectedTask] = useState<any>(null); // Add state for selected task
+    const [detailsModalOpen, setDetailsModalOpen] = useState(false); // Add state for modal
 
     // Extract unique employees from tasks data
     const employees = React.useMemo(() => {
@@ -69,6 +72,24 @@ const ManagerTasksLog = () => {
         setOpenFilter(false);
     }, [clearFilters]);
 
+    // Handle row click in data grid
+    const handleRowClick = useCallback((params: any) => {
+        setSelectedTask(params.row);
+        setDetailsModalOpen(true);
+    }, []);
+
+    // Handle card click in cards view
+    const handleCardClick = useCallback((task: any) => {
+        setSelectedTask(task);
+        setDetailsModalOpen(true);
+    }, []);
+
+    // Close details modal
+    const handleCloseDetailsModal = useCallback(() => {
+        setDetailsModalOpen(false);
+        setSelectedTask(null);
+    }, []);
+
     const columns = getManagerColumns(
         undefined,
         undefined,
@@ -86,9 +107,6 @@ const ManagerTasksLog = () => {
                 <Box display="flex" justifyContent="space-between" mb={2}>
                     <Box>
                         <Typography variant="h5">سجل المهام</Typography>
-                        <Typography fontSize={14} color="text.secondary">
-                            {new Date().toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' })}
-                        </Typography>
                         {isFilterActive && (
                             <Typography fontSize={12} color="primary">
                                 ({filteredTasks.length} من {tasks.length} مهمة بعد التصفية)
@@ -130,10 +148,15 @@ const ManagerTasksLog = () => {
                             columns={columns}
                             isLoading={isLoading}
                             getRowHeight={() => 'auto'}
+                            onRowClick={handleRowClick} // Add this prop
                             sx={{
                                 ...dataGridStyles,
                                 '& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within': {
                                     outline: 'none',
+                                },
+                                '& .MuiDataGrid-row:hover': {
+                                    cursor: 'pointer',
+                                    backgroundColor: 'rgba(0, 0, 0, 0.04)',
                                 },
                             }}
                             hideQuickFilter
@@ -146,9 +169,11 @@ const ManagerTasksLog = () => {
                         setActiveCommentRowId={setActiveCommentRowId}
                         commentAnchorEl={commentAnchorEl}
                         setCommentAnchorEl={setCommentAnchorEl}
+                        onCardClick={handleCardClick} // Pass this prop
                     />
                 )}
 
+                {/* Filter Dialog */}
                 <TasksFilterDialog
                     open={openFilter}
                     onClose={() => setOpenFilter(false)}
@@ -159,6 +184,13 @@ const ManagerTasksLog = () => {
                     employees={employees}
                 />
             </Box>
+
+            {/* Task Details Modal */}
+            <TaskDetailsDialog
+                open={detailsModalOpen}
+                onClose={handleCloseDetailsModal}
+                task={selectedTask}
+            />
         </Box>
     )
 }

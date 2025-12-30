@@ -10,18 +10,19 @@ import {
 } from '../../../../../store';
 import { Box, Typography, Button } from '@mui/material';
 import CustomDataGrid from '../../../../../common/table';
-import TaskFormDialog from '../../../../../common/components/TaskFormDialog';
+import TaskFormDialog from '../../components/TaskForm';
 import DeleteConfirmationDialog from '../../../../../common/components/DeleteConfirmationDialog';
 import { useTaskOperations } from '../components/hooks/useTaskOperations';
-import { getEmployeeColumns } from '../../../../../common/components/CommonColumns';
+import { getEmployeeColumns } from '../../components/tableColumns';
 import { dataGridStyles } from '../../../../../assets/styles/TableStyles/dataGridStyles.';
 import TaskStatistics from '../components/statistics/TaskStatistics';
-import TaskCardsView from '../../components/cardsView/TaskCardsView';
+import TaskCardsView from '../../components/taskCardsView';
 import ToggleButtonView from '../../../../../common/components/ToggleButtonView';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import TasksFilterDialog from '../../components/taskFilter/TasksFilterDialog';
+import TasksFilterDialog from '../../components/taskFilter';
 import TuneIcon from '@mui/icons-material/Tune';
 import { useTasksFilter } from '../../components/taskFilter/hooks/useTasksFilter';
+import TaskDetailsDialog from '../../components/taskdetails';
 
 const EmployeeTasksLog: React.FC = () => {
     const { data: employeeId } = useFetchEmployeeIdQuery();
@@ -33,6 +34,8 @@ const EmployeeTasksLog: React.FC = () => {
     const [view, setView] = useState<'table' | 'cards'>('table');
     const [activeCommentRowId, setActiveCommentRowId] = useState<number | null>(null);
     const [commentAnchorEl, setCommentAnchorEl] = useState<HTMLButtonElement | null>(null);
+    const [selectedTask, setSelectedTask] = useState<any>(null);
+    const [detailsModalOpen, setDetailsModalOpen] = useState(false);
 
     // Use the tasks filter hook
     const {
@@ -71,6 +74,24 @@ const EmployeeTasksLog: React.FC = () => {
         setCommentAnchorEl(null);
     }, []);
 
+    // Handle row click in data grid
+    const handleRowClick = useCallback((params: any) => {
+        setSelectedTask(params.row);
+        setDetailsModalOpen(true);
+    }, []);
+
+    // Handle card click in cards view
+    const handleCardClick = useCallback((task: any) => {
+        setSelectedTask(task);
+        setDetailsModalOpen(true);
+    }, []);
+
+    // Close details modal
+    const handleCloseDetailsModal = useCallback(() => {
+        setDetailsModalOpen(false);
+        setSelectedTask(null);
+    }, []);
+
     const columns = getEmployeeColumns(
         taskOperations.handleEditClick,
         taskOperations.handleDeleteClick,
@@ -103,9 +124,6 @@ const EmployeeTasksLog: React.FC = () => {
                 <Box display="flex" justifyContent="space-between" mb={2}>
                     <Box>
                         <Typography variant="h5">سجل المهام</Typography>
-                        <Typography fontSize={14} color="text.secondary">
-                            {new Date().toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' })}
-                        </Typography>
                         {isFilterActive && (
                             <Typography fontSize={12} color="primary">
                                 ({filteredTasks.length} من {tasks.length} مهمة بعد التصفية)
@@ -162,10 +180,15 @@ const EmployeeTasksLog: React.FC = () => {
                             columns={columns}
                             isLoading={isLoading}
                             getRowHeight={() => 'auto'}
+                            onRowClick={handleRowClick}
                             sx={{
                                 ...dataGridStyles,
                                 '& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within': {
                                     outline: 'none',
+                                },
+                                '& .MuiDataGrid-row:hover': {
+                                    cursor: 'pointer',
+                                    backgroundColor: 'rgba(0, 0, 0, 0.04)',
                                 },
                             }}
                             hideQuickFilter
@@ -180,9 +203,16 @@ const EmployeeTasksLog: React.FC = () => {
                         setActiveCommentRowId={setActiveCommentRowId}
                         commentAnchorEl={commentAnchorEl}
                         setCommentAnchorEl={setCommentAnchorEl}
+                        onCardClick={handleCardClick}
                     />
                 )}
             </Box>
+
+            <TaskDetailsDialog
+                open={detailsModalOpen}
+                onClose={handleCloseDetailsModal}
+                task={selectedTask}
+            />
 
             <TasksFilterDialog
                 open={openFilter}

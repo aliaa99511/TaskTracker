@@ -23,15 +23,15 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { ThemeProvider } from "@mui/material/styles";
 import { CacheProvider } from "@emotion/react";
-import { rtlTheme, rtlCache } from '../../rtlTheme';
-import { useFetchAllTaskTypeQuery, useFetchEmployeeIdQuery, useFetchTaskAttachmentsQuery } from '../../store';
-import { GetStatusOptions } from '../../configuration/options_field/tasks_status';
-import { GetPriorityOptions } from '../../configuration/options_field/tasks_priority';
+import { rtlTheme, rtlCache } from '../../../../../rtlTheme';
+import { useFetchEmployeeIdQuery, useFetchTaskAttachmentsQuery, useFetchTaskTypeWithDepartmentQuery } from '../../../../../store';
+import { GetStatusOptions } from '../../../../../configuration/options_field/tasks_status';
+import { GetPriorityOptions } from '../../../../../configuration/options_field/tasks_priority';
 import dayjs from 'dayjs';
 
 // Import CommonInput component
 import CommonInput from './CommonInput';
-import { TaskFormData, TaskFormDialogProps } from '../../webparts/tasksTracker/components/ITasksTrackerProps';
+import { TaskFormData, TaskFormDialogProps } from '../../../components/ITasksTrackerProps';
 
 // Validation schema
 const createTaskSchema = yup.object({
@@ -52,13 +52,17 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
     onSubmit,
     initialData,
     isEdit = false,
+    departmentId,
 }) => {
     const { data: employeeId } = useFetchEmployeeIdQuery();
-    const { data: taskTypeData } = useFetchAllTaskTypeQuery();
+    // const { data: taskTypeData } = useFetchAllTaskTypeQuery();
 
     // Fetch existing attachments for editing
     const { data: existingAttachments } = useFetchTaskAttachmentsQuery(initialData?.Id || 0, {
         skip: !initialData?.Id,
+    });
+    const { data: taskTypeData } = useFetchTaskTypeWithDepartmentQuery(departmentId || null, {
+        skip: !departmentId && !initialData?.DepartmentId, // Skip if no department ID
     });
 
     const statusOptions = GetStatusOptions();

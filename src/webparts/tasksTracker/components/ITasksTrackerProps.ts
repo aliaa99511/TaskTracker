@@ -38,6 +38,7 @@ export interface TaskFormDialogProps {
   onSubmit: (data: TaskFormData) => Promise<void>;
   initialData?: TaskFormData;
   isEdit?: boolean;
+  departmentId?: number;
 }
 
 // Attachment interface

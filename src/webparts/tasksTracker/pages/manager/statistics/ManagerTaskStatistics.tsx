@@ -8,7 +8,7 @@ import TrackChangesIcon from '@mui/icons-material/TrackChanges';
 import {
     useFetchDepartmentsQuery,
     useFetchTasksRequestsQuery,
-} from "../../../../../../store";
+} from "../../../../../store";
 
 const STATUS_RUNNING = "جاري التنفيذ";
 const STATUS_DONE = "تم الانتهاء";
@@ -62,8 +62,8 @@ const STATUS_CARDS: StatusCard[] = [
 ];
 
 const ManagerTaskStatistics = () => {
-    const { data: tasks = [], isLoading: tasksLoading } = useFetchTasksRequestsQuery();
-    const { data: allDepartments = [], isLoading: allDepLoading } = useFetchDepartmentsQuery();
+    const { data: tasks = [] } = useFetchTasksRequestsQuery();
+    const { data: allDepartments = [] } = useFetchDepartmentsQuery();
 
     // if (tasksLoading || allDepLoading) return <Typography>Loading...</Typography>;
 

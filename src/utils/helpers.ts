@@ -247,3 +247,32 @@ export function formatFileSize(bytes: number): string {
 
     return `${value.toFixed(2)} ${sizes[i]}`;
 }
+
+export const formatArabicLongDate = (dateString: string) => {
+    if (!dateString) return 'غير محدد';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('ar-EG', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+    });
+};
+export const getAttachmentUrl = (serverRelativeUrl: string): string => {
+    return `https://uraniumcorp.sharepoint.com${serverRelativeUrl}`;
+};
+
+export const downloadFile = (fileName: string, serverRelativeUrl: string): void => {
+    const fullUrl = getAttachmentUrl(serverRelativeUrl);
+    const link = document.createElement('a');
+    link.href = fullUrl;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+};
+
+export const openFile = (serverRelativeUrl: string): void => {
+    const fullUrl = getAttachmentUrl(serverRelativeUrl);
+    window.open(fullUrl, '_blank');
+};

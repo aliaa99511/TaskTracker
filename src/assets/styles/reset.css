@@ -1,5 +1,6 @@
-#workbenchPageContent {
-  max-width: 100%;
+#workbenchPageContent,
+.CanvasZoneSectionContainer {
+  max-width: 100% !important;
   margin: 0;
 }
 .ControlZone {
@@ -12,4 +13,12 @@
 .CanvasZone {
   max-width: 100% !important;
   padding: 0 !important;
+}
+ 
+#SuiteNavWrapper{
+  z-index: 12 !important;
+}
+ 
+.spAppAndPropertyPanelContainer.sp-appBar {
+  display: none !important;
 }

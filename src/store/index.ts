@@ -107,6 +107,8 @@ export {
     useDeleteTaskMutation,
     useFetchTaskNotesQuery,
     useAddTaskCommentMutation,
+    useUpdateTaskCommentMutation,
+    useDeleteTaskCommentMutation,
     useUploadTaskAttachmentMutation,
     useFetchTaskAttachmentsQuery,
     useDeleteAttachmentMutation,

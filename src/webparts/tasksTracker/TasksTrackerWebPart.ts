@@ -58,6 +58,8 @@ export default class TasksTrackerWebPart extends BaseClientSideWebPart<ITasksTra
     if (!currentTheme) return;
 
     this._isDarkTheme = !!currentTheme.isInverted;
+    this.siteTheme = currentTheme;
+
     const { semanticColors } = currentTheme;
 
     if (semanticColors) {

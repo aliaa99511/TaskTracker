@@ -31,6 +31,8 @@ const TaskCard = ({
     const handleToggleComment = (event: React.MouseEvent<HTMLButtonElement>) => {
         if (!setActiveCommentRowId || !setCommentAnchorEl) return;
 
+        event.stopPropagation(); // Prevent card click when clicking comment icon
+
         if (activeCommentRowId === task.ID) {
             setActiveCommentRowId(null);
             setCommentAnchorEl(null);
@@ -38,6 +40,16 @@ const TaskCard = ({
             setActiveCommentRowId(task.ID);
             setCommentAnchorEl(event.currentTarget);
         }
+    };
+
+    const handleEditClick = (event: React.MouseEvent) => {
+        event.stopPropagation();
+        if (onEdit) onEdit(task);
+    };
+
+    const handleDeleteClick = (id: number, title: string) => {
+        // This now matches what TaskActionMenu expects
+        if (onDelete) onDelete(id, title);
     };
 
     return (
@@ -50,7 +62,13 @@ const TaskCard = ({
                 flexDirection: 'column',
                 justifyContent: 'space-between',
                 height: '100%',
-                position: 'relative'
+                position: 'relative',
+                cursor: 'pointer',
+                transition: 'transform 0.2s, box-shadow 0.2s',
+                '&:hover': {
+                    transform: 'translateY(-4px)',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                }
             }}
         >
             {/* Top row: title + menu */}
@@ -92,8 +110,8 @@ const TaskCard = ({
                     {onEdit && onDelete && (
                         <TaskActionMenu
                             task={task}
-                            onEdit={() => onEdit(task)}
-                            onDelete={() => onDelete(task.ID, task.Title)}
+                            onEdit={handleEditClick}
+                            onDelete={handleDeleteClick}
                         />
                     )}
                 </Box>
@@ -102,8 +120,11 @@ const TaskCard = ({
             <Box sx={{ p: 2, flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                 {/* Responsible entity & Priority */}
                 <Box mt={1} display="flex" gap={1} justifyContent="space-between" alignItems="center">
+                    {/* <Typography fontSize={13} color="text.secondary" >
+                        الجهة المسؤولة: {task?.ConcernedEntity}
+                    </Typography> */}
                     <Typography fontSize={13} color="text.secondary" >
-                        الجهة المسؤولة: {task.ConcernedEntity}
+                        القسم: {task?.Department?.Title}
                     </Typography>
                     <Chip
                         size="small"
@@ -111,13 +132,21 @@ const TaskCard = ({
                         sx={{ ...getPriorityColor(task.Priority), fontSize: 12, fontWeight: 500 }}
                     />
                 </Box>
-
+                {/* <Box mt={1} display="flex" gap={1} justifyContent="space-between" alignItems="center">
+                    <Typography fontSize={13} color="text.secondary" >
+                        القسم: {task?.Department?.Title}
+                    </Typography>
+                </Box> */}
                 <Box mt={1} display="flex" gap={1} justifyContent="space-between" alignItems="center">
                     <Typography fontSize={13} color="text.secondary" >
-                        الوصف: {task.Description}
+                        الموظف: {task?.Employee?.Title}
                     </Typography>
                 </Box>
-
+                <Box mt={1} display="flex" gap={1} justifyContent="space-between" alignItems="center">
+                    <Typography fontSize={13} color="text.secondary" >
+                        تاريخ الإنشاء: {formatDate(task.Created)}
+                    </Typography>
+                </Box>
                 {/* Due date + optional comment icon */}
                 <Box mt={1} display="flex" justifyContent="space-between" alignItems="center">
                     <Typography fontSize={12} color="text.secondary">

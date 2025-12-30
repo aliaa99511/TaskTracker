@@ -15,13 +15,12 @@ export const RedirectRouter: React.FC = () => {
         if (!employeeDataInfo || isLoading) return;
 
         let path = "";
-        // let path = "/myPendingTasksLog"; 
 
         if (employeeDataInfo.EmployeeType === "CEO") {
             path = "/managerRecentTasksLog";
         }
         else if (employeeDataInfo.EmployeeType === "Employee") {
-            path = "/myPendingTasksLog"; // Already set as default
+            path = "/myPendingTasksLog";
         }
 
         navigate(path);

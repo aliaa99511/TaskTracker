@@ -40,7 +40,7 @@ const TaskActionMenu: React.FC<TaskActionMenuProps> = ({
 
     const handleDelete = (event: React.MouseEvent<HTMLElement>) => {
         event.stopPropagation();
-        onDelete(task.Id, task.Title);
+        onDelete(task.ID || task.Id, task.Title); // Use task.ID or task.Id based on your data
         handleClose(event);
     };
 

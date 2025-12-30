@@ -4,9 +4,9 @@ const GetPalette = (palette: any, mode: PaletteMode): PaletteOptions => {
     return {
         mode,
         primary: {
-            main: palette?.themePrimary || "#46ad6e",
-            light: palette?.themePrimary || "#46ad6e",
-            dark: palette?.themePrimary || "#46ad6e",
+            main: palette?.themePrimary || "#886A3D",
+            light: palette?.themePrimary || "#886A3D",
+            dark: palette?.themePrimary || "#886A3D",
             contrastText: palette?.primaryBackground || "#fff",
         },
         secondary: {

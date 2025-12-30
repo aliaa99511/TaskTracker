@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Grid, Popover } from '@mui/material';
 import TaskCard from './TaskCard';
-import TaskComments from '../comments/TaskComments';
+import TaskComments from '../comments';
 
 interface TaskCardsViewProps {
     tasks: any[];
@@ -11,6 +11,7 @@ interface TaskCardsViewProps {
     setActiveCommentRowId?: React.Dispatch<React.SetStateAction<number | null>>;
     commentAnchorEl?: HTMLButtonElement | null;
     setCommentAnchorEl?: React.Dispatch<React.SetStateAction<HTMLButtonElement | null>>;
+    onCardClick?: (task: any) => void;
 }
 
 const TaskCardsView = ({
@@ -20,7 +21,8 @@ const TaskCardsView = ({
     activeCommentRowId,
     setActiveCommentRowId,
     commentAnchorEl,
-    setCommentAnchorEl
+    setCommentAnchorEl,
+    onCardClick // Destructure it
 }: TaskCardsViewProps) => {
     const handleCloseComment = () => {
         if (setActiveCommentRowId) {
@@ -31,20 +33,28 @@ const TaskCardsView = ({
         }
     };
 
+    const handleCardClick = (task: any) => {
+        if (onCardClick) {
+            onCardClick(task);
+        }
+    };
+
     return (
         <>
             <Grid container spacing={2}>
                 {tasks.map((task: any) => (
                     <Grid item xs={12} md={4} key={task.ID}>
-                        <TaskCard
-                            task={task}
-                            onEdit={onEdit}
-                            onDelete={onDelete}
-                            activeCommentRowId={activeCommentRowId}
-                            setActiveCommentRowId={setActiveCommentRowId}
-                            commentAnchorEl={commentAnchorEl}
-                            setCommentAnchorEl={setCommentAnchorEl}
-                        />
+                        <div onClick={() => handleCardClick(task)}>
+                            <TaskCard
+                                task={task}
+                                onEdit={onEdit}
+                                onDelete={onDelete}
+                                activeCommentRowId={activeCommentRowId}
+                                setActiveCommentRowId={setActiveCommentRowId}
+                                commentAnchorEl={commentAnchorEl}
+                                setCommentAnchorEl={setCommentAnchorEl}
+                            />
+                        </div>
                     </Grid>
                 ))}
             </Grid>

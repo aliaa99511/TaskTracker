@@ -267,7 +267,11 @@ const tasksApi = createApi({
             ]
         }),
 
-        addTaskComment: builder.mutation({
+        addTaskComment: builder.mutation<any, { id: number; comment: string }>({
+            invalidatesTags: (result, error, { id }) => [
+                { type: 'Tasks' as const, id },
+                { type: 'Tasks' as const, id: `${id}-notes` }
+            ],
             query: ({ id, comment }) => {
                 return {
                     url: `/_api/web/lists/getbytitle('Tasks')/items(${id})`,
@@ -283,11 +287,94 @@ const tasksApi = createApi({
                     },
                 };
             },
-            invalidatesTags: (result, error, { id }) => [
-                { type: 'Tasks' as const, id },
-                { type: 'Tasks' as const, id: `${id}-notes` }
-            ],
         }),
+
+        updateTaskComment: builder.mutation<any, {
+            taskId: number;
+            versionId: number;
+            comment: string;
+        }>({
+            invalidatesTags: (result, error, { taskId }) => [
+                { type: 'Tasks' as const, id: taskId },
+                { type: 'Tasks' as const, id: `${taskId}-notes` }
+            ],
+            query: ({ taskId, versionId, comment }) => {
+                return {
+                    url: `/_api/web/lists/getbytitle('Tasks')/items(${taskId})/versions(${versionId})`,
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json; odata=verbose",
+                        "IF-MATCH": "*",
+                        "X-HTTP-Method": "MERGE"
+                    },
+                    body: {
+                        __metadata: { type: "SP.Data.TasksListItem" },
+                        Notes: comment
+                    },
+                };
+            },
+        }),
+
+        deleteTaskComment: builder.mutation<any, {
+            taskId: number;
+            versionId: number;
+        }>({
+            invalidatesTags: (result, error, { taskId }) => [
+                { type: 'Tasks' as const, id: taskId },
+                { type: 'Tasks' as const, id: `${taskId}-notes` }
+            ],
+            query: ({ taskId, versionId }) => ({
+                url: `/_api/web/lists/getbytitle('Tasks')/items(${taskId})/versions(${versionId})`,
+                method: "POST",
+                headers: {
+                    "IF-MATCH": "*",
+                    "X-HTTP-Method": "DELETE"
+                },
+            }),
+        }),
+        // updateTaskComment: builder.mutation<any, {
+        //     taskId: number;
+        //     versionId: number;
+        //     comment: string
+        // }>({
+        //     invalidatesTags: (result, error, { taskId }) => [
+        //         { type: 'Tasks' as const, id: taskId },
+        //         { type: 'Tasks' as const, id: `${taskId}-notes` }
+        //     ],
+        //     query: ({ taskId, versionId, comment }) => {
+        //         return {
+        //             url: `/_api/web/lists/getbytitle('Tasks')/items(${taskId})/versions(${versionId})`,
+        //             method: "POST",
+        //             headers: {
+        //                 "Content-Type": "application/json; odata=verbose",
+        //                 "IF-MATCH": "*",
+        //                 "X-HTTP-Method": "MERGE"
+        //             },
+        //             body: {
+        //                 __metadata: { type: "SP.Data.TasksListItem" },
+        //                 Notes: comment
+        //             },
+        //         };
+        //     },
+        // }),
+
+        // deleteTaskComment: builder.mutation<any, {
+        //     taskId: number;
+        //     versionId: number
+        // }>({
+        //     invalidatesTags: (result, error, { taskId }) => [
+        //         { type: 'Tasks' as const, id: taskId },
+        //         { type: 'Tasks' as const, id: `${taskId}-notes` }
+        //     ],
+        //     query: ({ taskId, versionId }) => ({
+        //         url: `/_api/web/lists/getbytitle('Tasks')/items(${taskId})/versions(${versionId})`,
+        //         method: "POST",
+        //         headers: {
+        //             "IF-MATCH": "*",
+        //             "X-HTTP-Method": "DELETE"
+        //         },
+        //     }),
+        // }),
 
         uploadTaskAttachment: builder.mutation<void, { taskId: number; file: File }>({
             query: ({ taskId, file }) => {
@@ -342,7 +429,10 @@ export const {
     useDeleteTaskMutation,
     useFetchTaskNotesQuery,
     useAddTaskCommentMutation,
+    useUpdateTaskCommentMutation,
+    useDeleteTaskCommentMutation,
     useUploadTaskAttachmentMutation,
     useFetchTaskAttachmentsQuery,
     useDeleteAttachmentMutation,
 } = tasksApi;
+

@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { GridColDef } from '@mui/x-data-grid';
 import { Chip, Popover } from '@mui/material';
-import { formatDate, getPriorityColor, getStatusColor } from '../../utils/helpers';
-import TaskActionMenu from './TaskActionMenu';
-import { TaskCommentButton } from '../../webparts/tasksTracker/pages/components/comments/TaskCommentButton';
-import TaskComments from '../../webparts/tasksTracker/pages/components/comments/TaskComments';
+import { formatDate, getPriorityColor, getStatusColor } from '../../../../../utils/helpers';
+import TaskActionMenu from '../../../../../common/components/TaskActionMenu';
+import { TaskCommentButton } from '../comments/TaskCommentButton';
+import TaskComments from '../comments';
 
 export const getBaseColumns = ({
     logType,
@@ -30,11 +30,11 @@ export const getBaseColumns = ({
         flex: 1
     });
 
-    columns.push({
-        field: "ConcernedEntity",
-        headerName: "الجهة المسؤولة",
-        flex: 0.6
-    });
+    // columns.push({
+    //     field: "ConcernedEntity",
+    //     headerName: "الجهة المسؤولة",
+    //     flex: 0.6
+    // });
 
     if (logType !== 'employee') {
         columns.push({
@@ -77,14 +77,12 @@ export const getBaseColumns = ({
         renderCell: (p) => formatDate(p.value)
     });
 
-    if (logType == 'employee') {
-        columns.push({
-            field: "Created",
-            headerName: "تاريخ الانشاء",
-            flex: 0.5,
-            renderCell: (p) => formatDate(p.value)
-        });
-    }
+    columns.push({
+        field: "Created",
+        headerName: "تاريخ الانشاء",
+        flex: 0.5,
+        renderCell: (p) => formatDate(p.value)
+    });
 
     columns.push({
         field: "comments",
@@ -132,6 +130,9 @@ export const getBaseColumns = ({
                             vertical: 'top',
                             horizontal: 'left',
                         }}
+                        disableAutoFocus
+                        disableEnforceFocus
+                        disableRestoreFocus
                         PaperProps={{
                             sx: {
                                 width: 320,
@@ -143,6 +144,10 @@ export const getBaseColumns = ({
                                 borderRadius: 2,
                             }
                         }}
+                        // Prevent closing when clicking outside
+                        onClick={(e) => e.stopPropagation()}
+                        onMouseDown={(e) => e.stopPropagation()}
+                        onTouchStart={(e) => e.stopPropagation()}
                     >
                         <TaskComments taskId={params.row.ID} onClose={handleClose} />
                     </Popover>

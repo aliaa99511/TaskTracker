@@ -25,6 +25,7 @@ import ManagerTasksLog from '../pages/manager/tasksLog';
 import { Box, Typography, Alert, AlertTitle, Paper } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { CircularProgress } from '@mui/material';
+import AboutDrawer from '../pages/About/AboutDrawer';
 
 dayjs.extend(relativeTime);
 dayjs.extend(localizedFormat);
@@ -62,6 +63,10 @@ const LoadingContainer = styled(Box)(({ theme }) => ({
 const AppContent: React.FC<ITasksTrackerProps> = ({ siteURL, token, siteTheme }) => {
   const dispatch = useDispatch();
   const [isConfigSet, setIsConfigSet] = React.useState(false);
+  const [openAbout, setOpenAbout] = React.useState(false);
+
+  const handleOpenAbout = () => setOpenAbout(true);
+  const handleCloseAbout = () => setOpenAbout(false);
 
   // إعداد التكوين أولاً
   React.useEffect(() => {
@@ -193,37 +198,42 @@ const AppContent: React.FC<ITasksTrackerProps> = ({ siteURL, token, siteTheme })
     );
   }
 
-  // الحصول على عناصر التنقل وعرض التطبيق
-  const navItems = getNavItemsByRole([], employeeDataInfo);
+  // الحصول على عناصر التنقل مع onClick handler للـ About
+  const navItems = getNavItemsByRole([], employeeDataInfo, handleOpenAbout);
 
   return (
-    <Layout
-      siteURL={siteURL}
-      token={token || null}
-      siteTheme={siteTheme}
-      navItems={navItems}
-      configurationComponent={<SiteConfiguration />}
-      configurationListName={"Tasks"}
-    >
-      <Routes>
-        {employeeType === "Employee" && (
-          <>
-            <Route index element={<RedirectRouter />} />
-            <Route path="/myPendingTasksLog" element={<EmployeePendingTasksLog />} />
-            <Route path="/myTasksLog" element={<EmployeeTasksLog />} />
-          </>
-        )}
+    <>
+      <Layout
+        siteURL={siteURL}
+        token={token || null}
+        siteTheme={siteTheme}
+        navItems={navItems}
+        configurationComponent={<SiteConfiguration />}
+        configurationListName={"Tasks"}
+      >
+        <Routes>
+          {employeeType === "Employee" && (
+            <>
+              <Route index element={<RedirectRouter />} />
+              <Route path="/myPendingTasksLog" element={<EmployeePendingTasksLog />} />
+              <Route path="/myTasksLog" element={<EmployeeTasksLog />} />
+            </>
+          )}
 
-        {employeeType === "CEO" && (
-          <>
-            <Route index element={<RedirectRouter />} />
-            <Route path="/managerRecentTasksLog" element={<ManagerRecentTasksLog />} />
-            <Route path="/managerTasksLog" element={<ManagerTasksLog />} />
-          </>
-        )}
-      </Routes>
-      <ToastContainer />
-    </Layout>
+          {employeeType === "CEO" && (
+            <>
+              <Route index element={<RedirectRouter />} />
+              <Route path="/managerRecentTasksLog" element={<ManagerRecentTasksLog />} />
+              <Route path="/managerTasksLog" element={<ManagerTasksLog />} />
+            </>
+          )}
+        </Routes>
+        <ToastContainer />
+      </Layout>
+
+      {/* About Drawer - rendered outside Layout but inside AppContent */}
+      <AboutDrawer open={openAbout} onClose={handleCloseAbout} />
+    </>
   );
 };
 

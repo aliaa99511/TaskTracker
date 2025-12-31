@@ -67,6 +67,7 @@ const userApi = createApi({
                 });
 
                 if (currentUserRes.error) return { error: currentUserRes.error };
+                console.log('currentUserRes', currentUserRes)
                 const currentUserId = currentUserRes.data?.d?.Id;
                 if (!currentUserId) return { data: null };
 

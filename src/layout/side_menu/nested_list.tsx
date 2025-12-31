@@ -1,28 +1,16 @@
 import * as React from 'react';
-import List from '@mui/material/List';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemText from '@mui/material/ListItemText';
-import Collapse from '@mui/material/Collapse';
+import { Collapse, List, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
-
+import { MenuItem } from '../../webparts/tasksTracker/components/ITasksTrackerProps';
 import MenuLink from './link';
 
-type MenuItem = {
-    label: string;
-    to: string;
-    children: {
-        label: string;
-        to: string;
-    }[];
-};
-
-type MenuLinkProps = {
+interface NestedListProps {
     item: MenuItem;
-};
+}
 
-export default function NestedList({ item }: MenuLinkProps) {
-    const [open, setOpen] = React.useState(true);
+export default function NestedList({ item }: NestedListProps) {
+    const [open, setOpen] = React.useState(false);
 
     const handleClick = () => {
         setOpen(!open);
@@ -30,23 +18,18 @@ export default function NestedList({ item }: MenuLinkProps) {
 
     return (
         <>
-            <ListItemButton onClick={handleClick} sx={{
-                "& .MuiTypography-root": {
-                    textAlign: "right",
-                    fontWeight: 450,
-                    fontSize: "1em"
-                }
-            }}>
+            <ListItemButton onClick={handleClick}>
+                <ListItemIcon>
+                    {item.icon}
+                </ListItemIcon>
                 <ListItemText primary={item.label} />
                 {open ? <ExpandLess /> : <ExpandMore />}
             </ListItemButton>
             <Collapse in={open} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding>
-                    {item.children.map((sub_link: any, index) => <MenuLink
-                        key={index}
-                        item={sub_link}
-                        isSubLink={true}
-                    />)}
+                    {item.children?.map((child, index) => (
+                        <MenuLink key={index} item={{ ...child, icon: child.icon || item.icon }} isSubLink />
+                    ))}
                 </List>
             </Collapse>
         </>

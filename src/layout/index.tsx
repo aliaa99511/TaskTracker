@@ -5,8 +5,8 @@ import {
     CssBaseline,
     Backdrop,
     CircularProgress,
-    Grid,
     Paper,
+    Box,
 } from "@mui/material";
 import { sp } from "@pnp/sp";
 
@@ -118,46 +118,54 @@ const Layout: React.FC<LayoutProps> = ({
             {!configurationIsCompleted && configurationComponent}
 
             {configurationIsCompleted && (
-                <Grid
-                    container
-                    spacing={0}
+                <Box
                     sx={{
-                        minHeight: "calc(100vh)",
+                        display: 'flex',
+                        height: '100vh',
                         direction: lang === "ar" ? "rtl" : "ltr",
+                        backgroundColor: '#f6f6f6',
+                        overflow: 'hidden', // Prevent double scrollbars
                     }}
                 >
-                    {/* Side Menu */}
-                    <Grid
-                        item
-                        xs={12}
-                        md={3}
-                        lg={2}
+                    {/* Side Menu - Fixed width, scrollable */}
+                    <Box
                         sx={{
-                            borderLeft: "1px solid #eee",
-                            backgroundColor: "#fff",
+                            width: { xs: '100%', md: 250, lg: 280 },
+                            flexShrink: 0,
+                            backgroundColor: '#fff',
+                            borderLeft: '1px solid #eee',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            height: '100%', // Take full height of parent
                         }}
                     >
                         <SideMenu navItems={navItems} />
-                    </Grid>
+                    </Box>
 
-                    {/* Content */}
-                    <Grid item xs={12} md={9} lg={10} >
+                    {/* Main Content - Takes remaining space, scrollable */}
+                    <Box
+                        sx={{
+                            flex: 1,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            height: '100%',
+                            overflow: 'auto', // Make content scrollable
+                        }}
+                    >
                         <Paper
                             elevation={0}
                             sx={{
-                                // p: "1rem 2rem",
-                                height: "100%",
-                                backgroundColor: "#f6f6f6",
-                                minHeight: 'calc(100vh)'
+                                flex: 1,
+                                backgroundColor: '#f6f6f6',
+                                minHeight: '100%', // Ensure it fills the space
                             }}
                         >
                             {children}
                         </Paper>
-                    </Grid>
-                </Grid>
-            )
-            }
-        </ThemeProvider >
+                    </Box>
+                </Box>
+            )}
+        </ThemeProvider>
     );
 };
 

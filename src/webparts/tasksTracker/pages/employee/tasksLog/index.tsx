@@ -115,7 +115,7 @@ const EmployeeTasksLog: React.FC = () => {
     const TaskStatisticsMemo = React.memo(TaskStatistics);
 
     return (
-        <Box sx={{ p: 3 }}>
+        <Box sx={{ p: 2 }}>
             {/* Statistics */}
             <TaskStatisticsMemo />
 

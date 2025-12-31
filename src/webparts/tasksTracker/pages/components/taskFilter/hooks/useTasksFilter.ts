@@ -8,8 +8,9 @@ export interface TaskFilterState {
     priority: string;
     concernedEntity: string;
     type: string;
-    employee: string; // Add employee filter
-    employeeId?: number; // Optional employee ID for exact matching
+    employee: string;
+    employeeId?: number;
+    department: string;
 }
 
 export interface Task {
@@ -23,6 +24,10 @@ export interface Task {
         Id?: number;
     };
     EmployeeId?: number;
+    Department?: { // Add department property
+        Title: string;
+        Id?: number;
+    };
 }
 
 interface UseTasksFilterProps {
@@ -54,7 +59,8 @@ const initialFilterState: TaskFilterState = {
     priority: '',
     concernedEntity: '',
     type: '',
-    employee: ''
+    employee: '',
+    department: ''
 };
 
 // Move helper function outside the hook to avoid hoisting issues
@@ -67,14 +73,13 @@ const hasActiveFilters = (filters: TaskFilterState): boolean => {
 export const useTasksFilter = ({
     initialTasks,
     onFilterChange,
-    includeEmployeeFilter = false // Default to false for backward compatibility
-}: UseTasksFilterProps): UseTasksFilterReturn => {
+    includeEmployeeFilter = false,
+    includeDepartmentFilter = false // Add flag for department filter
+}: UseTasksFilterProps & { includeDepartmentFilter?: boolean }): UseTasksFilterReturn => {
     const [filterState, setFilterState] = useState<TaskFilterState>(initialFilterState);
 
-    // Calculate isFilterActive directly from filterState without useState
     const isFilterActive = useMemo(() => hasActiveFilters(filterState), [filterState]);
 
-    // Memoize filtered tasks
     const filteredTasks = useMemo(() => {
         let result = [...initialTasks];
 
@@ -93,7 +98,7 @@ export const useTasksFilter = ({
             result = result.filter(t => t.TaskType?.Title === filterState.type);
         }
 
-        // Apply concerned entity filter (partial match)
+        // Apply concerned entity filter
         if (filterState.concernedEntity) {
             result = result.filter(t =>
                 (t.ConcernedEntity || "").toLowerCase()
@@ -101,13 +106,24 @@ export const useTasksFilter = ({
             );
         }
 
-        // Apply employee filter (only if includeEmployeeFilter is true)
+        // Apply employee filter
         if (includeEmployeeFilter && filterState.employee) {
             result = result.filter(t => {
-                // Check if employee data exists
                 if (t.Employee?.Title) {
                     return t.Employee.Title.toLowerCase()
                         .includes(filterState.employee.toLowerCase());
+                }
+                return false;
+            });
+        }
+
+        // Apply department filter (only if includeDepartmentFilter is true)
+        if (includeDepartmentFilter && filterState.department) {
+            result = result.filter(t => {
+                // Check if department data exists
+                if (t.Department?.Title) {
+                    return t.Department.Title.toLowerCase()
+                        .includes(filterState.department.toLowerCase());
                 }
                 return false;
             });
@@ -139,7 +155,8 @@ export const useTasksFilter = ({
         }
 
         return result;
-    }, [initialTasks, filterState, onFilterChange, includeEmployeeFilter]);
+    }, [initialTasks, filterState, onFilterChange, includeEmployeeFilter, includeDepartmentFilter]);
+
 
     const handleFilterChange = (field: keyof TaskFilterState, value: any) => {
         setFilterState(prev => ({

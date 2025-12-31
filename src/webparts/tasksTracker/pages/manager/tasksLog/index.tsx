@@ -19,8 +19,8 @@ const ManagerTasksLog = () => {
     const [openFilter, setOpenFilter] = useState(false);
     const [activeCommentRowId, setActiveCommentRowId] = useState<number | null>(null);
     const [commentAnchorEl, setCommentAnchorEl] = useState<HTMLButtonElement | null>(null);
-    const [selectedTask, setSelectedTask] = useState<any>(null); // Add state for selected task
-    const [detailsModalOpen, setDetailsModalOpen] = useState(false); // Add state for modal
+    const [selectedTask, setSelectedTask] = useState<any>(null);
+    const [detailsModalOpen, setDetailsModalOpen] = useState(false);
 
     // Extract unique employees from tasks data
     const employees = React.useMemo(() => {
@@ -38,7 +38,23 @@ const ManagerTasksLog = () => {
         return Array.from(employeeMap.values());
     }, [tasks]);
 
-    // Use the tasks filter hook with employee filter enabled
+    // Extract unique departments from tasks data
+    const departments = React.useMemo(() => {
+        const departmentMap = new Map();
+        tasks.forEach(task => {
+            if (task.Department && task.Department.Id && task.Department.Title) {
+                if (!departmentMap.has(task.Department.Id)) {
+                    departmentMap.set(task.Department.Id, {
+                        Id: task.Department.Id,
+                        Title: task.Department.Title
+                    });
+                }
+            }
+        });
+        return Array.from(departmentMap.values());
+    }, [tasks]);
+
+    // Use the tasks filter hook with employee and department filters enabled
     const {
         filteredTasks,
         filterState,
@@ -49,6 +65,7 @@ const ManagerTasksLog = () => {
     } = useTasksFilter({
         initialTasks: tasks,
         includeEmployeeFilter: true,
+        includeDepartmentFilter: true, // Enable department filter for manager
         onFilterChange: useCallback((filtered) => {
             // Optional: Additional logic when filters change
         }, [])
@@ -98,7 +115,7 @@ const ManagerTasksLog = () => {
     );
 
     return (
-        <Box sx={{ p: 3 }}>
+        <Box sx={{ p: 2 }}>
             {/* Statistics */}
             <ManagerTaskStatistics />
 
@@ -148,7 +165,7 @@ const ManagerTasksLog = () => {
                             columns={columns}
                             isLoading={isLoading}
                             getRowHeight={() => 'auto'}
-                            onRowClick={handleRowClick} // Add this prop
+                            onRowClick={handleRowClick}
                             sx={{
                                 ...dataGridStyles,
                                 '& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within': {
@@ -169,7 +186,7 @@ const ManagerTasksLog = () => {
                         setActiveCommentRowId={setActiveCommentRowId}
                         commentAnchorEl={commentAnchorEl}
                         setCommentAnchorEl={setCommentAnchorEl}
-                        onCardClick={handleCardClick} // Pass this prop
+                        onCardClick={handleCardClick}
                     />
                 )}
 
@@ -182,6 +199,8 @@ const ManagerTasksLog = () => {
                     initialFilters={filterState}
                     includeEmployeeFilter={true}
                     employees={employees}
+                    includeDepartmentFilter={true} // Pass this prop
+                    departments={departments} // Pass departments data
                 />
             </Box>
 

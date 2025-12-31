@@ -172,7 +172,7 @@ const ManagerTaskStatistics = () => {
                                         flexDirection: 'column',
                                         justifyContent: 'center'
                                     }}>
-                                        <Typography fontSize={14} color="text.secondary" mb={1}>
+                                        <Typography fontSize={14} color="text.secondary" sx={{ textAlign: "right" }} mb={1}>
                                             {stat.label}
                                         </Typography>
                                         <Box display="flex" alignItems="center" justifyContent="space-between" gap={1.5}>

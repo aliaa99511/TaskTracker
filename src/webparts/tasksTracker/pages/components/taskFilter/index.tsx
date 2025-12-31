@@ -29,8 +29,10 @@ interface Props {
     onApply: (filters: any) => void;
     onClear: () => void;
     initialFilters: any;
-    includeEmployeeFilter?: boolean; // Add this prop
-    employees?: Array<{ Id: number; Title: string }>; // Add employees data prop
+    includeEmployeeFilter?: boolean;
+    employees?: Array<{ Id: number; Title: string }>;
+    includeDepartmentFilter?: boolean; // Add department filter prop
+    departments?: Array<{ Id: number; Title: string }>; // Add departments data prop
 }
 
 const TasksFilterDialog: React.FC<Props> = ({
@@ -39,15 +41,15 @@ const TasksFilterDialog: React.FC<Props> = ({
     onApply,
     onClear,
     initialFilters,
-    includeEmployeeFilter = false, // Default to false
-    employees = [] // Default to empty array
+    includeEmployeeFilter = false,
+    employees = [],
+    includeDepartmentFilter = false, // Default to false
+    departments = [] // Default to empty array
 }) => {
     const { data: taskTypes = [] } = useFetchAllTaskTypeQuery();
 
-    // Initialize with provided filters
     const [filters, setFilters] = useState<any>(initialFilters);
 
-    // Update local state when initialFilters prop changes
     useEffect(() => {
         setFilters(initialFilters);
     }, [initialFilters]);
@@ -60,7 +62,8 @@ const TasksFilterDialog: React.FC<Props> = ({
         priority: "",
         concernedEntity: "",
         type: "",
-        employee: "" // Add employee to default filters
+        employee: "",
+        department: "" // Add department to default filters
     };
 
     const handleChange = (field: string, value: any) => {
@@ -83,7 +86,6 @@ const TasksFilterDialog: React.FC<Props> = ({
 
             <DialogContent>
                 <Grid container spacing={2}>
-
                     {/* Year */}
                     <Grid item xs={4}>
                         <Typography>السنة</Typography>
@@ -245,6 +247,30 @@ const TasksFilterDialog: React.FC<Props> = ({
                         </Grid>
                     )}
 
+                    {/* Department Filter (Conditional) */}
+                    {includeDepartmentFilter && departments.length > 0 && (
+                        <Grid item xs={12}>
+                            <Typography>القسم</Typography>
+                            <Select
+                                fullWidth
+                                value={filters.department}
+                                onChange={(e) => handleChange("department", e.target.value)}
+                                displayEmpty
+                                renderValue={(selected) => {
+                                    if (!selected) return "اختر القسم";
+                                    return selected;
+                                }}
+                                sx={{ color: 'text.secondary', mt: .6 }}
+                            >
+                                <MenuItem value="">الكل</MenuItem>
+                                {departments.map((dept: any) => (
+                                    <MenuItem key={dept.Id} value={dept.Title}>
+                                        {dept.Title}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </Grid>
+                    )}
                 </Grid>
             </DialogContent>
 
@@ -261,7 +287,7 @@ const TasksFilterDialog: React.FC<Props> = ({
                     تطبيق
                 </Button>
             </DialogActions>
-        </Dialog >
+        </Dialog>
     );
 };
 

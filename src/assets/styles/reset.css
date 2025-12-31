@@ -19,6 +19,6 @@
   z-index: 12 !important;
 }
  
-.spAppAndPropertyPanelContainer.sp-appBar {
+.spAppAndPropertyPanelContainer .sp-appBar,.SPPageChrome-app .commandBarWrapper {
   display: none !important;
 }

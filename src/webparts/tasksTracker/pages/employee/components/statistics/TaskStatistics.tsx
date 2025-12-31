@@ -75,7 +75,7 @@ const TaskStatistics = () => {
                 return (
                     <Grid item xs={12} md={2.2} key={stat.label}>
                         <Card sx={{ p: 1.5, borderRadius: 3, height: '100%', pt: 2 }}>
-                            <Typography fontSize={16} color="text.secondary">
+                            <Typography fontSize={16} color="text.secondary" sx={{ textAlign: "right" }} >
                                 {stat.label}
                             </Typography>
                             <Box display="flex" alignItems="center" justifyContent={"space-between"} gap={1.5} sx={{ margin: "10px 10px 2px 10px" }}>

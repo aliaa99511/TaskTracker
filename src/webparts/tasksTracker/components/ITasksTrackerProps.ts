@@ -81,3 +81,21 @@ export interface TaskFilterProps {
   buttonVariant?: 'text' | 'outlined' | 'contained';
   buttonSize?: 'small' | 'medium' | 'large';
 }
+export interface MenuItem {
+  label: string;
+  icon: React.ReactNode;
+  to?: string; // Make to optional
+  onClick?: () => void;
+  children?: MenuItemChild[];
+}
+
+export interface MenuItemChild {
+  label: string;
+  to: string; // Children always need a to property
+  icon?: React.ReactNode;
+}
+
+export interface MenuLinkProps {
+  item: MenuItem;
+  isSubLink?: boolean;
+}

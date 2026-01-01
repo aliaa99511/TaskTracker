@@ -31,7 +31,7 @@ const CustomToolbar: React.FC<CustomToolbarProps> = ({
                 gap: 2,
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                p: 1,
+                p: .4,
             }}
         >
             {!hideQuickFilter && (

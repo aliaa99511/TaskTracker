@@ -9,7 +9,8 @@ export const useTaskOperations = (
     updateTaskMutation: any,
     deleteTaskMutation: any,
     uploadAttachmentMutation: any,
-    deleteAttachmentMutation: any
+    deleteAttachmentMutation: any,
+    employeeDepartmentId?: number // Add departmentId parameter
 ) => {
     const [openDialog, setOpenDialog] = useState(false);
     const [editingTask, setEditingTask] = useState<TaskFormData | null>(null);
@@ -112,7 +113,7 @@ export const useTaskOperations = (
                 Status: formData.Id ? formData.Status : 'لم يبدأ بعد',
                 Priority: formData.Priority,
                 TaskTypeId: formData.TaskTypeId ? Number(formData.TaskTypeId) : null,
-                DepartmentId: formData.DepartmentId ? Number(formData.DepartmentId) : null,
+                DepartmentId: formData.DepartmentId ? Number(formData.DepartmentId) : employeeDepartmentId || null, // Use employee's department if not specified
                 ConcernedEntity: formData.ConcernedEntity || '',
                 EmployeeId: formData.EmployeeId || employeeId || undefined,
                 ManagerIDId: formData.ManagerIDId || undefined,
@@ -155,11 +156,12 @@ export const useTaskOperations = (
         }
     }, [
         employeeId,
+        employeeDepartmentId, // Add to dependencies
         createTaskMutation,
         updateTaskMutation,
         refetchTasks,
-        uploadAttachmentMutation, // ADD THIS
-        deleteAttachmentMutation  // ADD THIS
+        uploadAttachmentMutation,
+        deleteAttachmentMutation
     ]);
 
     return {

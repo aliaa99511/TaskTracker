@@ -60,9 +60,10 @@ const AboutDrawer: React.FC<Props> = ({ open, onClose }) => {
                 <Typography variant="subtitle1" sx={{ fontWeight: 600, fontSize: 20 }}>
                     الإصدار
                 </Typography>
-                <Typography sx={{ mb: 2 }}>
+                <Box sx={{ mb: 2 }}>
                     <Chip label="v1.0.5" variant="outlined" sx={{ px: .5 }} />
-                </Typography>
+                    <Chip label="Something" />
+                </Box>
 
                 {/* Description */}
                 <Typography variant="subtitle1" sx={{ fontWeight: 600, fontSize: 20 }}>

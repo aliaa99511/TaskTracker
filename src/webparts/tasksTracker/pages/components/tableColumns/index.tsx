@@ -48,7 +48,7 @@ export const getBaseColumns = ({
     columns.push({
         field: "TaskType",
         headerName: "نوع المهمة",
-        flex: 0.5,
+        flex: 0.7,
         renderCell: (p) => p.value?.Title || "-"
     });
 
@@ -64,7 +64,7 @@ export const getBaseColumns = ({
     columns.push({
         field: "Priority",
         headerName: "الأولوية",
-        flex: 0.5,
+        flex: 0.4,
         renderCell: (p) => (
             <Chip label={p.value} size="small" sx={getPriorityColor(p.value)} />
         )

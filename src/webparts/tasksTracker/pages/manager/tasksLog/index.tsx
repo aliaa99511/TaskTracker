@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react'
-import { useFetchCurrentMonthTasksRequestsQuery } from '../../../../../store';
+import { useFetchCurrentMonthTasksRequestsQuery, useFetchDepartmentsQuery } from '../../../../../store';
 import { Box, Button, Typography } from '@mui/material';
 import CustomDataGrid from '../../../../../common/table';
 import { dataGridStyles } from '../../../../../assets/styles/TableStyles/dataGridStyles.';
@@ -14,6 +14,9 @@ import { getManagerColumns } from '../../components/tableColumns';
 
 const ManagerTasksLog = () => {
     const { data: tasks = [], isLoading } = useFetchCurrentMonthTasksRequestsQuery();
+    const { data: departments = [] } = useFetchDepartmentsQuery();
+    console.log('tasks man', tasks)
+    console.log('departments', departments)
 
     const [view, setView] = useState<'table' | 'cards'>('table');
     const [openFilter, setOpenFilter] = useState(false);
@@ -38,23 +41,6 @@ const ManagerTasksLog = () => {
         return Array.from(employeeMap.values());
     }, [tasks]);
 
-    // Extract unique departments from tasks data
-    const departments = React.useMemo(() => {
-        const departmentMap = new Map();
-        tasks.forEach(task => {
-            if (task.Department && task.Department.Id && task.Department.Title) {
-                if (!departmentMap.has(task.Department.Id)) {
-                    departmentMap.set(task.Department.Id, {
-                        Id: task.Department.Id,
-                        Title: task.Department.Title
-                    });
-                }
-            }
-        });
-        return Array.from(departmentMap.values());
-    }, [tasks]);
-
-    // Use the tasks filter hook with employee and department filters enabled
     const {
         filteredTasks,
         filterState,
@@ -65,7 +51,8 @@ const ManagerTasksLog = () => {
     } = useTasksFilter({
         initialTasks: tasks,
         includeEmployeeFilter: true,
-        includeDepartmentFilter: true, // Enable department filter for manager
+        includeDepartmentFilter: true,
+        departments: departments, // Pass the fetched departments here
         onFilterChange: useCallback((filtered) => {
             // Optional: Additional logic when filters change
         }, [])
@@ -115,13 +102,13 @@ const ManagerTasksLog = () => {
     );
 
     return (
-        <Box sx={{ p: 2 }}>
+        <Box sx={{ p: 1.3 }}>
             {/* Statistics */}
             <ManagerTaskStatistics />
 
-            <Box sx={{ background: "#fff", p: 3, borderRadius: 3 }}>
+            <Box sx={{ background: "#fff", p: 2, borderRadius: 3 }}>
                 {/* Header */}
-                <Box display="flex" justifyContent="space-between" mb={2}>
+                <Box display="flex" justifyContent="space-between">
                     <Box>
                         <Typography variant="h5">سجل المهام</Typography>
                         {isFilterActive && (
@@ -199,8 +186,8 @@ const ManagerTasksLog = () => {
                     initialFilters={filterState}
                     includeEmployeeFilter={true}
                     employees={employees}
-                    includeDepartmentFilter={true} // Pass this prop
-                    departments={departments} // Pass departments data
+                    includeDepartmentFilter={true} // Make sure this is true
+                    departments={departments} // Pass the extracted departments
                 />
             </Box>
 

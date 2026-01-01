@@ -50,13 +50,13 @@ const ManagerRecentTasksLog = () => {
     );
 
     return (
-        <Box sx={{ p: 2 }}>
+        <Box sx={{ p: 1.3 }}>
             {/* Statistics */}
             <ManagerTaskStatistics />
 
-            <Box sx={{ background: "#fff", p: 3, borderRadius: 3 }}>
+            <Box sx={{ background: "#fff", p: 2, borderRadius: 3 }}>
                 {/* Header */}
-                <Box display="flex" justifyContent="space-between" mb={2}>
+                <Box display="flex" justifyContent="space-between">
                     <Box>
                         <Typography variant="h5">المهام المعلقة</Typography>
                     </Box>

@@ -55,7 +55,6 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
     departmentId,
 }) => {
     const { data: employeeId } = useFetchEmployeeIdQuery();
-    // const { data: taskTypeData } = useFetchAllTaskTypeQuery();
 
     // Fetch existing attachments for editing
     const { data: existingAttachments } = useFetchTaskAttachmentsQuery(initialData?.Id || 0, {
@@ -100,7 +99,7 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
                 StartDate: initialData.StartDate ? new Date(initialData.StartDate) : null,
                 DueDate: initialData.DueDate ? new Date(initialData.DueDate) : null,
                 TaskTypeId: initialData.TaskTypeId?.toString() || '',
-                DepartmentId: initialData.DepartmentId?.toString() || '',
+                DepartmentId: initialData.DepartmentId?.toString() || (departmentId ? departmentId.toString() : ''),
             });
         } else {
             reset({
@@ -111,14 +110,14 @@ const TaskFormDialog: React.FC<TaskFormDialogProps> = ({
                 Status: 'لم يبدأ بعد',
                 Priority: 'متوسطة',
                 TaskTypeId: '',
-                DepartmentId: '',
+                DepartmentId: departmentId ? departmentId.toString() : '', // Set department ID from props
                 ConcernedEntity: '',
                 EmployeeId: employeeId as number,
             });
         }
         setFiles([]);
         setFilesToDelete([]);
-    }, [initialData, employeeId, reset, open]);
+    }, [initialData, employeeId, departmentId, reset, open]); // Add departmentId to dependencies
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && !isSubmitting) {

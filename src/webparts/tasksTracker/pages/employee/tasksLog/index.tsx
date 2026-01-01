@@ -3,6 +3,7 @@ import {
     useCreateTaskMutation,
     useDeleteAttachmentMutation,
     useDeleteTaskMutation,
+    useFetchEmployeeByIdQuery,
     useFetchEmployeeIdQuery,
     useFetchTasksRequestsByEmployeeIdWithCurrentMonthQuery,
     useUpdateTaskMutation,
@@ -29,6 +30,16 @@ const EmployeeTasksLog: React.FC = () => {
     const { data: tasks = [], refetch, isLoading } = useFetchTasksRequestsByEmployeeIdWithCurrentMonthQuery(employeeId as number, {
         skip: !employeeId,
     });
+
+    // Fetch employee data to get department ID
+    const { data: employeeData } = useFetchEmployeeByIdQuery(employeeId as number, {
+        skip: !employeeId,
+    });
+
+    // Extract department ID from employee data
+    const employeeDepartmentId = employeeData?.DepartmentId;
+    console.log('employeeDepartmentId', employeeDepartmentId)
+    console.log('tasks em', tasks)
 
     const [openFilter, setOpenFilter] = useState(false);
     const [view, setView] = useState<'table' | 'cards'>('table');
@@ -65,7 +76,8 @@ const EmployeeTasksLog: React.FC = () => {
         updateTask,
         deleteTask,
         uploadAttachment,
-        deleteAttachment
+        deleteAttachment,
+        employeeDepartmentId // Pass department ID here
     );
 
     // Handle click outside to close comment box
@@ -115,13 +127,13 @@ const EmployeeTasksLog: React.FC = () => {
     const TaskStatisticsMemo = React.memo(TaskStatistics);
 
     return (
-        <Box sx={{ p: 2 }}>
+        <Box sx={{ p: 1.3 }}>
             {/* Statistics */}
             <TaskStatisticsMemo />
 
-            <Box sx={{ background: "#fff", p: 3, borderRadius: 3 }}>
+            <Box sx={{ background: "#fff", p: 2, borderRadius: 3 }}>
                 {/* Header */}
-                <Box display="flex" justifyContent="space-between" mb={2}>
+                <Box display="flex" justifyContent="space-between">
                     <Box>
                         <Typography variant="h5">سجل المهام</Typography>
                         {isFilterActive && (
@@ -228,6 +240,7 @@ const EmployeeTasksLog: React.FC = () => {
                 onSubmit={taskOperations.handleSubmit}
                 initialData={taskOperations.editingTask || undefined}
                 isEdit={!!taskOperations.editingTask}
+                departmentId={employeeDepartmentId} // Pass department ID here
             />
 
             <DeleteConfirmationDialog

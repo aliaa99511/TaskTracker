@@ -30,10 +30,12 @@ export interface Task {
     };
 }
 
-interface UseTasksFilterProps {
+export interface UseTasksFilterProps {
     initialTasks: Task[];
     onFilterChange?: (filteredTasks: Task[]) => void;
-    includeEmployeeFilter?: boolean; // Add flag to conditionally include employee filter
+    includeEmployeeFilter?: boolean;
+    includeDepartmentFilter?: boolean;
+    departments?: Array<{ Id: number; Title: string }>; // Add departments prop
 }
 
 interface UseTasksFilterReturn {
@@ -74,8 +76,9 @@ export const useTasksFilter = ({
     initialTasks,
     onFilterChange,
     includeEmployeeFilter = false,
-    includeDepartmentFilter = false // Add flag for department filter
-}: UseTasksFilterProps & { includeDepartmentFilter?: boolean }): UseTasksFilterReturn => {
+    includeDepartmentFilter = false,
+    departments = [] // Add departments with default empty array
+}: UseTasksFilterProps): UseTasksFilterReturn => {
     const [filterState, setFilterState] = useState<TaskFilterState>(initialFilterState);
 
     const isFilterActive = useMemo(() => hasActiveFilters(filterState), [filterState]);
@@ -120,7 +123,7 @@ export const useTasksFilter = ({
         // Apply department filter (only if includeDepartmentFilter is true)
         if (includeDepartmentFilter && filterState.department) {
             result = result.filter(t => {
-                // Check if department data exists
+                // Check if department data exists in the task
                 if (t.Department?.Title) {
                     return t.Department.Title.toLowerCase()
                         .includes(filterState.department.toLowerCase());
@@ -156,7 +159,6 @@ export const useTasksFilter = ({
 
         return result;
     }, [initialTasks, filterState, onFilterChange, includeEmployeeFilter, includeDepartmentFilter]);
-
 
     const handleFilterChange = (field: keyof TaskFilterState, value: any) => {
         setFilterState(prev => ({

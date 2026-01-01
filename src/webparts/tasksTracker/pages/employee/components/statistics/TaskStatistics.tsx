@@ -66,7 +66,7 @@ const TaskStatistics = () => {
     ];
 
     return (
-        <Grid container spacing={1.5} mb={3} alignItems="stretch">
+        <Grid container spacing={1.5} mb={1.5} alignItems="stretch">
             {STATS.map(stat => {
                 const value = stat.isTotal
                     ? total

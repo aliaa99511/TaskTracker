@@ -54,7 +54,8 @@ const EmployeePendingTasksLog: React.FC = () => {
         updateTask,
         deleteTask,
         uploadAttachment,
-        deleteAttachment
+        deleteAttachment,
+        employeeDepartmentId // Pass department ID here
     );
 
     // Handle click outside to close comment box
@@ -89,13 +90,13 @@ const EmployeePendingTasksLog: React.FC = () => {
     );
 
     return (
-        <Box sx={{ p: 2 }}>
+        <Box sx={{ p: 1.3 }}>
             {/* Statistics */}
             <TaskStatistics />
 
-            <Box sx={{ background: "#fff", p: 3, borderRadius: 3 }}>
+            <Box sx={{ background: "#fff", p: 2, borderRadius: 3 }}>
                 {/* Header */}
-                <Box display="flex" justifyContent="space-between" mb={2}>
+                <Box display="flex" justifyContent="space-between">
                     <Box>
                         <Typography variant="h5">المهام المعلقة</Typography>
                     </Box>
@@ -172,7 +173,7 @@ const EmployeePendingTasksLog: React.FC = () => {
                 onSubmit={taskOperations.handleSubmit}
                 initialData={taskOperations.editingTask || undefined}
                 isEdit={!!taskOperations.editingTask}
-                departmentId={employeeDepartmentId}
+                departmentId={employeeDepartmentId} // Pass department ID here
             />
 
             <DeleteConfirmationDialog

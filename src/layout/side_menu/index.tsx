@@ -6,13 +6,6 @@ import { MenuItem } from '../../webparts/tasksTracker/components/ITasksTrackerPr
 const SideMenu: React.FC<{ navItems: MenuItem[] }> = ({ navItems }) => {
     const theme = useTheme();
 
-    // Find About item and other items
-    const aboutItemIndex = navItems.findIndex((item: MenuItem) => item.label === "عن التطبيق");
-    const aboutItem = aboutItemIndex >= 0 ? navItems[aboutItemIndex] : null;
-    const otherItems = aboutItemIndex >= 0
-        ? [...navItems.slice(0, aboutItemIndex), ...navItems.slice(aboutItemIndex + 1)]
-        : navItems;
-
     return (
         <Paper
             elevation={0}
@@ -20,7 +13,7 @@ const SideMenu: React.FC<{ navItems: MenuItem[] }> = ({ navItems }) => {
                 p: 2,
                 width: "100%",
                 backgroundColor: theme.palette.background.paper,
-                height: "100%", // Changed from 100vh to 100%
+                height: "100%",
                 display: 'flex',
                 flexDirection: 'column',
                 overflow: 'hidden',
@@ -28,7 +21,7 @@ const SideMenu: React.FC<{ navItems: MenuItem[] }> = ({ navItems }) => {
                 borderRight: `1px solid ${theme.palette.divider}`,
             }}
         >
-            {/* Main navigation items - with scroll if needed */}
+            {/* All navigation items in one scrollable area */}
             <Box sx={{
                 flex: 1,
                 overflowY: 'auto',
@@ -52,24 +45,28 @@ const SideMenu: React.FC<{ navItems: MenuItem[] }> = ({ navItems }) => {
                         p: 0,
                     }}
                 >
-                    {otherItems.map((item: MenuItem, index: number) =>
-                        <MenuLink key={index} item={item} />
-                    )}
+                    {navItems.map((item: MenuItem, index: number) => {
+                        // Check if this is the About item
+                        const isAboutItem = item.label === "عن التطبيق";
+
+                        return (
+                            <MenuLink
+                                key={index}
+                                item={item}
+                                isAboutItem={isAboutItem} // Pass this prop to MenuLink
+                                sx={isAboutItem ? {
+                                    // Special styling for About item
+                                    backgroundColor: theme.palette.grey[50],
+                                    color: "#656768",
+                                    border: `1px solid ${theme.palette.grey[300]}`,
+                                    borderLeft: `4px solid ${theme.palette.secondary.main}`,
+                                    marginTop: 2, // Add some space before About item
+                                } : {}}
+                            />
+                        );
+                    })}
                 </List>
             </Box>
-
-            {/* About item at the bottom - always visible */}
-            {aboutItem && (
-                <Box sx={{
-                    flexShrink: 0,
-                    mt: 'auto',
-                    pt: 2,
-                    borderTop: `1px solid ${theme.palette.divider}`,
-                    backgroundColor: 'inherit',
-                }}>
-                    <MenuLink item={aboutItem} />
-                </Box>
-            )}
         </Paper>
     );
 }

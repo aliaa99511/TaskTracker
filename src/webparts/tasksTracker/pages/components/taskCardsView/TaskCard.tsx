@@ -1,11 +1,9 @@
 import * as React from 'react';
 import { Card, Typography, Chip, Box, IconButton } from '@mui/material';
 import TaskActionMenu from '../../../../../common/components/TaskActionMenu';
-import { formatDate, getPriorityColor } from '../../../../../utils/helpers';
+import { formatDate, getPriorityColor, hasRealNotes } from '../../../../../utils/helpers';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import TextsmsIcon from '@mui/icons-material/Textsms';
-import { alpha } from '@mui/material/styles';
-import Badge from '@mui/material/Badge';
 
 interface TaskCardProps {
     task: any;
@@ -26,6 +24,7 @@ const TaskCard = ({
     commentAnchorEl,
     setCommentAnchorEl
 }: TaskCardProps) => {
+    const hasComments = hasRealNotes(task.Notes);
     const isActive = activeCommentRowId === task.ID;
 
     const handleToggleComment = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -77,7 +76,7 @@ const TaskCard = ({
                 justifyContent="space-between"
                 alignItems="center"
                 sx={{
-                    backgroundColor: (theme) => alpha(theme.palette.primary.main, 0.1),
+                    backgroundColor: (theme) => theme.palette.primary.main + '10',
                     p: 1,
                 }}
             >
@@ -94,17 +93,11 @@ const TaskCard = ({
                                 color: isActive ? 'primary.main' : 'inherit'
                             }}
                         >
-                            <Badge
-                                badgeContent={task.CommentsCount || 0}
-                                color="error"
-                                max={99}
-                            >
-                                {(task.CommentsCount || 0) > 0 ? (
-                                    <TextsmsIcon fontSize="small" />
-                                ) : (
-                                    <ChatBubbleOutlineIcon fontSize="small" />
-                                )}
-                            </Badge>
+                            {hasComments ? (
+                                <TextsmsIcon fontSize="small" />
+                            ) : (
+                                <ChatBubbleOutlineIcon fontSize="small" />
+                            )}
                         </IconButton>
                     )}
                     {onEdit && onDelete && (
@@ -120,9 +113,6 @@ const TaskCard = ({
             <Box sx={{ p: 2, flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                 {/* Responsible entity & Priority */}
                 <Box mt={1} display="flex" gap={1} justifyContent="space-between" alignItems="center">
-                    {/* <Typography fontSize={13} color="text.secondary" >
-                        الجهة المسؤولة: {task?.ConcernedEntity}
-                    </Typography> */}
                     <Typography fontSize={13} color="text.secondary" >
                         القسم: {task?.Department?.Title}
                     </Typography>
@@ -132,11 +122,6 @@ const TaskCard = ({
                         sx={{ ...getPriorityColor(task.Priority), fontSize: 12, fontWeight: 500 }}
                     />
                 </Box>
-                {/* <Box mt={1} display="flex" gap={1} justifyContent="space-between" alignItems="center">
-                    <Typography fontSize={13} color="text.secondary" >
-                        القسم: {task?.Department?.Title}
-                    </Typography>
-                </Box> */}
                 <Box mt={1} display="flex" gap={1} justifyContent="space-between" alignItems="center">
                     <Typography fontSize={13} color="text.secondary" >
                         الموظف: {task?.Employee?.Title}
@@ -153,7 +138,7 @@ const TaskCard = ({
                         موعد التسليم: {formatDate(task.DueDate)}
                     </Typography>
 
-                    {task.NewCommentsCount > 0 && (
+                    {hasComments && (
                         <Box
                             sx={{
                                 display: 'flex',
@@ -165,10 +150,7 @@ const TaskCard = ({
                                 borderRadius: 1,
                             }}
                         >
-                            <ChatBubbleOutlineIcon sx={{ fontSize: 14, color: 'gray' }} />
-                            <Typography fontSize={12} color="gray">
-                                {task.NewCommentsCount}
-                            </Typography>
+                            <TextsmsIcon sx={{ fontSize: 14, color: 'gray' }} />
                         </Box>
                     )}
                 </Box>
@@ -176,5 +158,4 @@ const TaskCard = ({
         </Card>
     );
 };
-
 export default TaskCard;

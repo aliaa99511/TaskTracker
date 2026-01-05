@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { Task } from '../../../../components/ITasksTrackerProps';
 
 export interface TaskFilterState {
     year: string | number;
@@ -11,23 +12,6 @@ export interface TaskFilterState {
     employee: string;
     employeeId?: number;
     department: string;
-}
-
-export interface Task {
-    Status: string;
-    Priority: string;
-    TaskType?: { Title: string };
-    ConcernedEntity: string;
-    Created: string;
-    Employee?: {
-        Title: string;
-        Id?: number;
-    };
-    EmployeeId?: number;
-    Department?: { // Add department property
-        Title: string;
-        Id?: number;
-    };
 }
 
 export interface UseTasksFilterProps {

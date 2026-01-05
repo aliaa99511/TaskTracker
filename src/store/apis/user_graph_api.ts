@@ -14,40 +14,34 @@ interface GraphUsersResponse {
     value: GraphUser[];
 }
 
-// interface GraphPhotoResponse {
-//     // Photo endpoint returns a blob URL string
-// }
-
 const graphApi = createApi({
     reducerPath: "graph",
     tagTypes: ["GraphUser"],
-    baseQuery: async (args, api, extraOptions) => {
-        const state = api.getState() as RootState;
-        const token = state.config.token;
+    baseQuery: fetchBaseQuery({
+        baseUrl: "https://graph.microsoft.com/v1.0",
+        prepareHeaders: (headers, { getState }) => {
+            const state = getState() as RootState;
+            const token = state.config.token;
 
-        const rawBaseQuery = fetchBaseQuery({
-            baseUrl: "https://graph.microsoft.com/v1.0",
-            prepareHeaders: async (headers) => {
-                headers.set("Accept", "application/json");
-                if (token) {
-                    headers.set("Authorization", `Bearer ${token}`);
-                }
-                return headers;
-            },
-        });
-
-        return rawBaseQuery(args, api, extraOptions);
-    },
+            headers.set("Accept", "application/json");
+            if (token) {
+                headers.set("Authorization", `Bearer ${token}`);
+            }
+            return headers;
+        },
+    }),
     endpoints: (builder) => ({
         fetchCurrentUserGraph: builder.query<GraphUser, void>({
-            query: () => "/me?$select=displayName,mail,jobTitle,department,Id",
+            query: () => "/me?$select=displayName,mail,jobTitle,department,id",
             transformResponse: (response: any) => response,
             providesTags: ["GraphUser"],
         }),
 
         fetchUserPhotoByEmail: builder.query<string | null, string>({
-            async queryFn(email, _api, _extraOptions, baseQuery) {
-                if (!email) return { data: null };
+            queryFn: async (email, _api, _extraOptions, baseQuery) => {
+                if (!email) {
+                    return { data: null };
+                }
 
                 try {
                     // First, find the user by email
@@ -55,40 +49,53 @@ const graphApi = createApi({
                         url: `/users?$filter=mail eq '${email}'&$select=id,mail`,
                     });
 
-                    if (searchResult.error) return { error: searchResult.error };
+                    if (searchResult.error) {
+                        return { error: searchResult.error };
+                    }
 
-                    // Cast the response to the correct type
                     const usersData = searchResult.data as GraphUsersResponse;
 
-                    if (!usersData?.value?.length) return { data: null };
+                    if (!usersData?.value?.length) {
+                        return { data: null };
+                    }
 
                     const user = usersData.value[0];
 
-                    // Then fetch the photo
-                    const photoResult = await baseQuery({
-                        url: `/users/${user.id}/photo/$value`,
-                        responseHandler: async (response: any) => {
-                            if (!response.ok) {
-                                throw new Error('Failed to fetch photo');
-                            }
-                            const blob = await response.blob();
-                            return URL.createObjectURL(blob);
-                        },
-                        headers: {
-                            Accept: "image/jpeg",
-                        },
-                    });
+                    // Then fetch the photo using a separate fetch call
+                    // since we need to handle blob response differently
+                    const state = _api.getState() as RootState;
+                    const token = state.config.token;
 
-                    if (photoResult.error) {
-                        return { error: photoResult.error };
+                    const photoResponse = await fetch(
+                        `https://graph.microsoft.com/v1.0/users/${user.id}/photo/$value`,
+                        {
+                            headers: {
+                                Authorization: `Bearer ${token}`,
+                                Accept: "image/jpeg",
+                            },
+                        }
+                    );
+
+                    if (!photoResponse.ok) {
+                        // Return null if photo doesn't exist (404) or other error
+                        return { data: null };
                     }
 
-                    return { data: photoResult.data as string };
-                } catch (err) {
-                    return { error: err };
+                    const blob = await photoResponse.blob();
+                    const photoUrl = URL.createObjectURL(blob);
+
+                    return { data: photoUrl };
+                } catch (error: any) {
+                    // Cast the error to FetchBaseQueryError
+                    return {
+                        error: {
+                            status: 'CUSTOM_ERROR',
+                            error: error?.message || 'Unknown error'
+                        }
+                    };
                 }
             },
-            providesTags: (_result, _error, email) => [{ type: "GraphUser", email }],
+            providesTags: (_result, _error, email) => [{ type: "GraphUser", id: email }],
         }),
     }),
 });

@@ -332,50 +332,6 @@ const tasksApi = createApi({
                 },
             }),
         }),
-        // updateTaskComment: builder.mutation<any, {
-        //     taskId: number;
-        //     versionId: number;
-        //     comment: string
-        // }>({
-        //     invalidatesTags: (result, error, { taskId }) => [
-        //         { type: 'Tasks' as const, id: taskId },
-        //         { type: 'Tasks' as const, id: `${taskId}-notes` }
-        //     ],
-        //     query: ({ taskId, versionId, comment }) => {
-        //         return {
-        //             url: `/_api/web/lists/getbytitle('Tasks')/items(${taskId})/versions(${versionId})`,
-        //             method: "POST",
-        //             headers: {
-        //                 "Content-Type": "application/json; odata=verbose",
-        //                 "IF-MATCH": "*",
-        //                 "X-HTTP-Method": "MERGE"
-        //             },
-        //             body: {
-        //                 __metadata: { type: "SP.Data.TasksListItem" },
-        //                 Notes: comment
-        //             },
-        //         };
-        //     },
-        // }),
-
-        // deleteTaskComment: builder.mutation<any, {
-        //     taskId: number;
-        //     versionId: number
-        // }>({
-        //     invalidatesTags: (result, error, { taskId }) => [
-        //         { type: 'Tasks' as const, id: taskId },
-        //         { type: 'Tasks' as const, id: `${taskId}-notes` }
-        //     ],
-        //     query: ({ taskId, versionId }) => ({
-        //         url: `/_api/web/lists/getbytitle('Tasks')/items(${taskId})/versions(${versionId})`,
-        //         method: "POST",
-        //         headers: {
-        //             "IF-MATCH": "*",
-        //             "X-HTTP-Method": "DELETE"
-        //         },
-        //     }),
-        // }),
-
         uploadTaskAttachment: builder.mutation<void, { taskId: number; file: File }>({
             query: ({ taskId, file }) => {
                 return {

@@ -67,7 +67,6 @@ const userApi = createApi({
                 });
 
                 if (currentUserRes.error) return { error: currentUserRes.error };
-                console.log('currentUserRes', currentUserRes)
                 const currentUserId = currentUserRes.data?.d?.Id;
                 if (!currentUserId) return { data: null };
 
@@ -79,7 +78,6 @@ const userApi = createApi({
                         $select: "ID",
                     },
                 });
-
                 if (employeeRes.error) return { error: employeeRes.error };
                 const employeeId = employeeRes.data?.d?.results?.[0]?.ID ?? null;
                 return { data: employeeId };

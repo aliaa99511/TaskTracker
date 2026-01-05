@@ -15,6 +15,25 @@ export interface TaskFormDialogProps {
   isEdit?: boolean;
 }
 
+export interface Task {
+  ID: number;
+  Status: string;
+  Priority: string;
+  TaskType?: { Title: string };
+  ConcernedEntity: string;
+  Created: string;
+  Employee?: {
+    Title: string;
+    Id?: number;
+  };
+  EmployeeId?: number;
+  Department?: { // Add department property
+    Title: string;
+    Id?: number;
+  };
+  CommentsCount?: number;
+}
+
 export interface TaskFormData {
   Id?: number;
   Title: string;

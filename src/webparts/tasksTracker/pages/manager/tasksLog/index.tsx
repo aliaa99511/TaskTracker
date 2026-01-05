@@ -15,8 +15,6 @@ import { getManagerColumns } from '../../components/tableColumns';
 const ManagerTasksLog = () => {
     const { data: tasks = [], isLoading } = useFetchCurrentMonthTasksRequestsQuery();
     const { data: departments = [] } = useFetchDepartmentsQuery();
-    console.log('tasks man', tasks)
-    console.log('departments', departments)
 
     const [view, setView] = useState<'table' | 'cards'>('table');
     const [openFilter, setOpenFilter] = useState(false);

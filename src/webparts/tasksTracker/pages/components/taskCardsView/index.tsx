@@ -41,7 +41,7 @@ const TaskCardsView = ({
 
     return (
         <>
-            <Grid container spacing={2}>
+            <Grid container spacing={2} sx={{ mt: .2 }}>
                 {tasks.map((task: any) => (
                     <Grid item xs={12} md={4} key={task.ID}>
                         <div onClick={() => handleCardClick(task)}>

@@ -276,3 +276,9 @@ export const openFile = (serverRelativeUrl: string): void => {
     const fullUrl = getAttachmentUrl(serverRelativeUrl);
     window.open(fullUrl, '_blank');
 };
+
+export const hasRealNotes = (html: string | null) => {
+    if (!html) return false;
+    const text = html.replace(/<[^>]*>/g, "").trim();
+    return text.length > 0;
+};

@@ -38,8 +38,6 @@ const EmployeeTasksLog: React.FC = () => {
 
     // Extract department ID from employee data
     const employeeDepartmentId = employeeData?.DepartmentId;
-    console.log('employeeDepartmentId', employeeDepartmentId)
-    console.log('tasks em', tasks)
 
     const [openFilter, setOpenFilter] = useState(false);
     const [view, setView] = useState<'table' | 'cards'>('table');

@@ -157,7 +157,7 @@ const ManagerTaskStatistics = () => {
                         }}
                     >
                         <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                            <Typography fontWeight="bold">
+                            <Typography fontWeight="bold" sx={{ textAlign: "right" }}>
                                 المهام قيد التنفيذ (حسب الإدارات)
                             </Typography>
                             {selectedDepartment && (
@@ -165,6 +165,8 @@ const ManagerTaskStatistics = () => {
                                     variant="caption"
                                     color="primary"
                                     sx={{
+                                        textAlign: "left",
+                                        mr: .3,
                                         cursor: "pointer",
                                         "&:hover": { textDecoration: "underline" }
                                     }}
@@ -254,8 +256,8 @@ const ManagerTaskStatistics = () => {
 
                         {/* Selected Department Info */}
                         {selectedDepartment && (
-                            <Box mt={2} p={1} bgcolor="#f5f5f5" borderRadius={1}>
-                                <Typography variant="caption" color="text.secondary">
+                            <Box mt={2} p={1} bgcolor="#f5f5f5" borderRadius={1} sx={{ textAlign: "right" }}>
+                                <Typography variant="caption" color="text.secondary" sx={{ textAlign: "right" }}>
                                     معروض: مهام إدارة <strong>{selectedDepartment}</strong>
                                 </Typography>
                             </Box>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { IconButton, Badge, Box } from '@mui/material';
+import { IconButton, Box } from '@mui/material';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import TextsmsIcon from '@mui/icons-material/Textsms';
 
@@ -26,23 +26,23 @@ export const TaskCommentButton: React.FC<TaskCommentButtonProps> = ({
                     zIndex: 1
                 }}
             >
-                <Badge
+                {/* <Badge
                     badgeContent={commentsCount || 0}
                     color="error"
                     max={99}
-                >
-                    {commentsCount > 0 ? (
-                        <TextsmsIcon
-                            fontSize="small"
-                            color={isActive ? "primary" : "action"}
-                        />
-                    ) : (
-                        <ChatBubbleOutlineIcon
-                            fontSize="small"
-                            color={isActive ? "primary" : "action"}
-                        />
-                    )}
-                </Badge>
+                > */}
+                {commentsCount > 0 ? (
+                    <TextsmsIcon
+                        fontSize="small"
+                        color={isActive ? "primary" : "action"}
+                    />
+                ) : (
+                    <ChatBubbleOutlineIcon
+                        fontSize="small"
+                        color={isActive ? "primary" : "action"}
+                    />
+                )}
+                {/* </Badge> */}
             </IconButton>
         </Box>
     );

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { GridColDef } from '@mui/x-data-grid';
 import { Chip, Popover } from '@mui/material';
-import { formatDate, getPriorityColor, getStatusColor } from '../../../../../utils/helpers';
+import { formatDate, getPriorityColor, getStatusColor, hasRealNotes } from '../../../../../utils/helpers';
 import TaskActionMenu from '../../../../../common/components/TaskActionMenu';
 import { TaskCommentButton } from '../comments/TaskCommentButton';
 import TaskComments from '../comments';
@@ -91,35 +91,51 @@ export const getBaseColumns = ({
         sortable: false,
         filterable: false,
         renderCell: (params) => {
+            const hasComments = hasRealNotes(params.row.Notes);
             const isActive = activeCommentRowId === params.row.ID;
             const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
+            const anchorElRef = React.useRef<HTMLButtonElement | null>(null);
 
+            // Handle click to set anchor element
             const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
                 event.stopPropagation();
-                if (activeCommentRowId === params.row.ID) {
+
+                if (isActive) {
                     setActiveCommentRowId(null);
                     setAnchorEl(null);
+                    anchorElRef.current = null;
                 } else {
                     setActiveCommentRowId(params.row.ID);
                     setAnchorEl(event.currentTarget);
+                    anchorElRef.current = event.currentTarget;
                 }
             };
 
+            // Handle popover close
             const handleClose = () => {
                 setActiveCommentRowId(null);
                 setAnchorEl(null);
+                anchorElRef.current = null;
             };
+
+            // Keep anchorEl in sync with active state
+            React.useEffect(() => {
+                if (!isActive) {
+                    setAnchorEl(null);
+                    anchorElRef.current = null;
+                }
+            }, [isActive]);
 
             return (
                 <>
                     <TaskCommentButton
                         taskId={params.row.ID}
-                        commentsCount={params.row.CommentsCount || 0}
+                        commentsCount={hasComments ? 1 : 0} // Use 1 if there are notes, 0 otherwise
                         isActive={isActive}
                         onClick={handleClick}
                     />
                     <Popover
-                        open={isActive}
+                        open={isActive && !!anchorEl}
                         anchorEl={anchorEl}
                         onClose={handleClose}
                         anchorOrigin={{
@@ -144,7 +160,6 @@ export const getBaseColumns = ({
                                 borderRadius: 2,
                             }
                         }}
-                        // Prevent closing when clicking outside
                         onClick={(e) => e.stopPropagation()}
                         onMouseDown={(e) => e.stopPropagation()}
                         onTouchStart={(e) => e.stopPropagation()}

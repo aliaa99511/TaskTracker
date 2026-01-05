@@ -62,7 +62,6 @@ const AboutDrawer: React.FC<Props> = ({ open, onClose }) => {
                 </Typography>
                 <Box sx={{ mb: 2 }}>
                     <Chip label="v1.0.5" variant="outlined" sx={{ px: .5 }} />
-                    <Chip label="Something" />
                 </Box>
 
                 {/* Description */}
@@ -120,7 +119,10 @@ const AboutDrawer: React.FC<Props> = ({ open, onClose }) => {
 
                 <Box sx={{ background: "#F8F9FA", p: 2 }}>
                     <Typography sx={{ mb: 2 }}>
-                        تم تطوير هذا التطبيق بواسطة target Integrated Systems كحلً داخلي لإدارة وتنظيم العمل.                    </Typography>
+                        تم تطوير هذا التطبيق بواسطة
+                        <b> Target Integrated Systems </b>
+                        كحلً داخلي لإدارة وتنظيم العمل.
+                    </Typography>
 
                     <Typography
                         component="a"
